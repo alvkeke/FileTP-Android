@@ -385,6 +385,9 @@ color colorAccent
 color colorPrimary
 color colorPrimaryDark
 color color_black
+color color_file_icon
+color color_gray
+color color_icon_folder
 color dim_foreground_disabled_material_dark
 color dim_foreground_disabled_material_light
 color dim_foreground_material_dark
@@ -630,6 +633,8 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable ic_file
+drawable ic_folder
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable notification_action_background
@@ -703,6 +708,7 @@ id edit_query
 id end
 id expand_activities_button
 id expanded_menu
+id file_view_divider
 id file_view_icon
 id file_view_name
 id fill

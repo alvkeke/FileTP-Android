@@ -11,7 +11,6 @@
         android:layout_marginTop="@dimen/distance_margin_file_icon"
         android:layout_marginEnd="@dimen/distance_margin_file_icon"
         android:layout_centerVertical="true"
-        android:background="@drawable/ic_launcher_background"
         android:layout_width="40dp"
         android:layout_height="40dp"/>
 
@@ -20,10 +19,16 @@
         android:layout_toEndOf="@id/file_view_icon"
         android:layout_centerVertical="true"
         android:layout_marginStart="@dimen/distance_margin_file_icon"
-        android:text="test.file"
         android:textColor="@color/color_black"
         android:textSize="22sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <View
+        android:id="@+id/file_view_divider"
+        android:layout_below="@id/file_view_icon"
+        android:background="@color/color_gray"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
 
 </RelativeLayout>

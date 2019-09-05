@@ -1,15 +1,16 @@
 package com.alvkeke.tools.filetp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -22,7 +23,6 @@ import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -32,13 +32,12 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
     private ArrayList<String> credibleUsers;
 
     private ListView mFileList;
+    private FileListAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        askForPermission();
 
         olUsers = new HashMap<>();
         credibleUsers = new ArrayList<>();
@@ -53,37 +52,27 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         startListenServer(deviceName, beginPort);
 
         mFileList = findViewById(R.id.lv_file_explorer);
-        ArrayList<File> filesToShow = new ArrayList<>();
-        FileListAdapter adapter = new FileListAdapter(this, filesToShow);
-        mFileList.setAdapter(adapter);
+        mFileList.setDivider(null);
+        ArrayList<File> dirList = new ArrayList<>();
+        ArrayList<File> fileList = new ArrayList<>();
+        mAdapter = new FileListAdapter(this, dirList, fileList);
+        mFileList.setAdapter(mAdapter);
 
-        File sdcard = new File(System.getenv("EXTERNAL_STORAGE"));
+        // todo: load hide file setting from configure
+        mAdapter.setShowHideFile(true);
 
-        if (sdcard.exists()) {
-            Log.e("debug", sdcard.getAbsolutePath());
-            if (sdcard.isDirectory()){
-                File[] files1 = sdcard.listFiles();
-                filesToShow.clear();
-                if (files1 != null) {
-                    filesToShow.addAll(Arrays.asList(files1));
-                }
-            }
-        }
-
-
-        adapter.notifyDataSetChanged();
-
+        setEventListener();
+        askForPermission();
 
     }
 
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-    void askForPermission(){
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, 1);
+    void setEventListener(){
+        mFileList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.e("click", "position: " + position);
             }
+        });
     }
 
     void startListenServer(String deviceName, int beginPort){
@@ -108,6 +97,46 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
 
 
 
+    }
+
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    private static int STORAGE_PERMISSION_REQUEST_CODE = 1;
+
+    boolean checkPermission(){
+        return (ActivityCompat.checkSelfPermission(this, Manifest.permission_group.STORAGE) == PackageManager.PERMISSION_DENIED);
+    }
+
+    void askForPermission(){
+        if (checkPermission())
+        {
+            ActivityCompat.requestPermissions(this,
+                    PERMISSIONS_STORAGE, STORAGE_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    void showSdcardFiles(){
+
+        File sdcard = new File(System.getenv("EXTERNAL_STORAGE"));
+
+        mAdapter.setPath(sdcard);
+        mAdapter.rankList();
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == STORAGE_PERMISSION_REQUEST_CODE){
+            for (int i : grantResults){
+                if (i == PackageManager.PERMISSION_DENIED){
+                    finish();
+                }
+            }
+            showSdcardFiles();
+        }
     }
 
     @Override
