@@ -384,6 +384,7 @@ color button_material_light
 color colorAccent
 color colorPrimary
 color colorPrimaryDark
+color color_black
 color dim_foreground_disabled_material_dark
 color dim_foreground_disabled_material_light
 color dim_foreground_material_dark
@@ -514,6 +515,7 @@ dimen compat_notification_large_icon_max_height
 dimen compat_notification_large_icon_max_width
 dimen disabled_alpha_material_dark
 dimen disabled_alpha_material_light
+dimen distance_margin_file_icon
 dimen highlight_alpha_material_colored
 dimen highlight_alpha_material_dark
 dimen highlight_alpha_material_light
@@ -701,6 +703,8 @@ id edit_query
 id end
 id expand_activities_button
 id expanded_menu
+id file_view_icon
+id file_view_name
 id fill
 id fill_horizontal
 id fill_vertical
@@ -722,6 +726,7 @@ id line1
 id line3
 id listMode
 id list_item
+id lv_file_explorer
 id message
 id middle
 id multiply
@@ -825,6 +830,7 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_main
+layout file_view_item_layout
 layout notification_action
 layout notification_action_tombstone
 layout notification_template_custom_big

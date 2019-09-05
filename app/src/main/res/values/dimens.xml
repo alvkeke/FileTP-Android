@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <bool name="abc_action_bar_embed_tabs">false</bool>
+    <dimen name="distance_margin_file_icon">10dp</dimen>
 </resources>

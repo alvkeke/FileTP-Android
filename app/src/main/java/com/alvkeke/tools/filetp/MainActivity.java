@@ -4,7 +4,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.alvkeke.tools.filetp.FileTransport.BroadcastCallback;
@@ -13,8 +15,10 @@ import com.alvkeke.tools.filetp.FileTransport.FileRecvCallback;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvHandler;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -23,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
     private HashMap<String, InetAddress> olUsers;
     private ArrayList<String> credibleUsers;
 
+    private ListView mFileList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,14 +36,37 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
 
         olUsers = new HashMap<>();
         credibleUsers = new ArrayList<>();
-        // todo: load users from configure
+        // todo: load credible users from configure
         credibleUsers.add("alv-manjaro");
         credibleUsers.add("alv-rasp3b");
         credibleUsers.add("alv-xiaomi-4s");
 
-        startListenServer("alv-xiaomi-4s", 10000);
+        // todo: load device name and begin port from configure
+        String deviceName = "alv-xiaomi-4s";
+        int beginPort = 10000;
+        startListenServer(deviceName, beginPort);
 
-        gotFile("hello");
+        mFileList = findViewById(R.id.lv_file_explorer);
+        ArrayList<File> filesToShow = new ArrayList<>();
+        FileListAdapter adapter = new FileListAdapter(this, filesToShow);
+        mFileList.setAdapter(adapter);
+
+        File sdcard = new File(System.getenv("EXTERNAL_STORAGE"));
+
+        if (sdcard.exists()) {
+            Log.e("debug", sdcard.getAbsolutePath());
+            if (sdcard.isDirectory()){
+                File[] files1 = sdcard.listFiles();
+                filesToShow.clear();
+                if (files1 != null) {
+                    filesToShow.addAll(Arrays.asList(files1));
+                }
+            }
+        }
+
+
+        adapter.notifyDataSetChanged();
+
 
     }
 
