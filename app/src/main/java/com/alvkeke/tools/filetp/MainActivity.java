@@ -2,7 +2,11 @@ package com.alvkeke.tools.filetp;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -33,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        askForPermission();
 
         olUsers = new HashMap<>();
         credibleUsers = new ArrayList<>();
@@ -68,6 +74,16 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         adapter.notifyDataSetChanged();
 
 
+    }
+
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    void askForPermission(){
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, 1);
+            }
     }
 
     void startListenServer(String deviceName, int beginPort){
