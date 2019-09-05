@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "/home/alvis/desktop/work-tmp/AS/FileTrasnport/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sw/values-sw.xml",
+            "outputFile": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sw/values-sw.xml",
             "map": [
                 {
                     "source": "/home/alvis/.gradle/caches/transforms-2/files-2.1/72b2b92ec4ab73ff21fb9bc348de3b22/core-1.0.1/res/values-sw/values-sw.xml",

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-class FileSender {
+public class FileSender {
 
     private String mDeviceName;
     private InetAddress mAddress;
@@ -22,26 +22,62 @@ class FileSender {
     }
 
     void send(File file){
-        try {
-            Socket socket = new Socket(mAddress, mPort);
-            FileInputStream fis = new FileInputStream(file);
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+//        try {
+//            Socket socket = new Socket(mAddress, mPort);
+//            FileInputStream fis = new FileInputStream(file);
+//            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+//
+//            dos.writeUTF(mDeviceName);
+//            dos.flush();
+//            dos.writeUTF(file.getName());
+//            dos.flush();
+//            byte[] buf = new byte[1024];
+//            int length;
+//            while ((length = fis.read(buf)) != -1){
+//                dos.write(buf, 0, length);
+//                dos.flush();
+//            }
+//            System.out.println("file send success");
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.println("file send failed");
+//        }
+        new Thread(new SenderThread(file)).start();
+    }
 
-            dos.writeUTF(mDeviceName);
-            dos.flush();
-            dos.writeUTF(file.getName());
-            dos.flush();
-            byte[] buf = new byte[1024];
-            int length;
-            while ((length = fis.read(buf)) != -1){
-                dos.write(buf, 0, length);
+    class SenderThread implements Runnable{
+
+        File file;
+
+        SenderThread(File file){
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+
+            try {
+                Socket socket = new Socket(mAddress, mPort);
+                FileInputStream fis = new FileInputStream(file);
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+
+                dos.writeUTF(mDeviceName);
                 dos.flush();
-            }
-            System.out.println("file send success");
+                dos.writeUTF(file.getName());
+                dos.flush();
+                byte[] buf = new byte[1024];
+                int length;
+                while ((length = fis.read(buf)) != -1){
+                    dos.write(buf, 0, length);
+                    dos.flush();
+                }
+                System.out.println("file send success");
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("file send failed");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("file send failed");
+            }
         }
     }
 }

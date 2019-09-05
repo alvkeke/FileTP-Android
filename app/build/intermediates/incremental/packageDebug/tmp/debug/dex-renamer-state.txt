@@ -1,7 +1,7 @@
-#Tue Sep 03 18:54:48 CST 2019
-base.0=/home/alvis/desktop/work-tmp/AS/FileTrasnport/app/build/intermediates/dex/debug/mergeExtDexDebug/out/classes.dex
+#Thu Sep 05 09:15:54 CST 2019
+base.0=/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/dex/debug/mergeExtDexDebug/out/classes.dex
 path.1=classes.dex
 renamed.1=classes2.dex
 path.0=classes.dex
 renamed.0=classes.dex
-base.1=/home/alvis/desktop/work-tmp/AS/FileTrasnport/app/build/intermediates/dex/debug/mergeProjectDexDebug/out/classes.dex
+base.1=/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/dex/debug/mergeProjectDexDebug/out/classes.dex

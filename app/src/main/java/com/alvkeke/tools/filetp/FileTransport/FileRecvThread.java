@@ -8,8 +8,8 @@ public class FileRecvThread implements Runnable{
     private Socket mSocket;
     private FileRecvCallback mCallback;
 
-    static final byte RECV_FAILED_DATA_ERROR = 1;
-    static final byte RECV_FAILED_INCREDIBLE = 2;
+    public static final byte RECV_FAILED_DATA_ERROR = 1;
+    public static final byte RECV_FAILED_INCREDIBLE = 2;
 
     FileRecvThread(FileRecvCallback callback, Socket socket){
         mCallback = callback;

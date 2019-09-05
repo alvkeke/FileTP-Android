@@ -4,17 +4,17 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-class FileRecvHandler {
+public class FileRecvHandler {
 
     private ServerSocket serverSocket;
     private boolean inLoop;
     private FileRecvCallback mCallback;
 
-    FileRecvHandler(FileRecvCallback callback){
+    public FileRecvHandler(FileRecvCallback callback){
         mCallback = callback;
     }
 
-    boolean startListen(int port){
+    public boolean startListen(int port){
 
         inLoop = true;
         try {
@@ -45,7 +45,7 @@ class FileRecvHandler {
         }
     }
 
-    void exit(){
+    public void exit(){
         inLoop = false;
     }
 

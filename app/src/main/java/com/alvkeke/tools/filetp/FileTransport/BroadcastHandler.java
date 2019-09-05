@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Arrays;
 
-class BroadcastHandler {
+public class BroadcastHandler {
 
     private String mUsername;
     private DatagramSocket mSocket;
@@ -15,12 +15,12 @@ class BroadcastHandler {
     private BroadcastCallback mCallback;
     private boolean inLoop;
 
-    BroadcastHandler(String username, BroadcastCallback callback){
+    public BroadcastHandler(String username, BroadcastCallback callback){
         mUsername = username;
         mCallback = callback;
     }
 
-    boolean startListen(int port){
+    public boolean startListen(int port){
 
         inLoop = true;
         mBroadPort = port;
@@ -85,11 +85,11 @@ class BroadcastHandler {
         }
     }
 
-    void exit(){
+    public void exit(){
         inLoop = false;
     }
 
-    void broadcast(){
+    public void broadcast(){
         // complete the method that broadcast this client's msg to other client
         String strSend = Cs.CMD_LOGIN_STR + mUsername;
         byte[] data = strSend.getBytes();
@@ -102,7 +102,7 @@ class BroadcastHandler {
         }
     }
 
-    void requestBroadcast(){
+    public void requestBroadcast(){
 
         // complete the method that broadcast this client's msg to other client
         String strSend = Cs.CMD_BROADCAST_REQUEST + mUsername;
