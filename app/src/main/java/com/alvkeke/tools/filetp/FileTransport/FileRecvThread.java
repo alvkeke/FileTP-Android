@@ -7,13 +7,16 @@ public class FileRecvThread implements Runnable{
 
     private Socket mSocket;
     private FileRecvCallback mCallback;
+    private String mSavePath;
 
     public static final byte RECV_FAILED_DATA_ERROR = 1;
     public static final byte RECV_FAILED_INCREDIBLE = 2;
+    public static final byte RECV_FAILED_SAVE_PATH_ERROR = 3;
 
-    FileRecvThread(FileRecvCallback callback, Socket socket){
+    FileRecvThread(FileRecvCallback callback, Socket socket, String savePath){
         mCallback = callback;
         mSocket = socket;
+        mSavePath = savePath;
     }
 
     @Override
@@ -24,16 +27,18 @@ public class FileRecvThread implements Runnable{
         try {
             DataInputStream dis = new DataInputStream(mSocket.getInputStream());
 
-            String username = dis.readUTF();
+            String deviceName = dis.readUTF();
             String filename = dis.readUTF();
             Long fileLength = dis.readLong();
 
-            if (!mCallback.isCredible(username)){
-                mCallback.recvFileFailed(RECV_FAILED_INCREDIBLE, username);
+            if (!mCallback.isCredible(deviceName)){
+                mCallback.recvFileFailed(RECV_FAILED_INCREDIBLE, deviceName);
             }
 
-            // todo: change the directory, load from the configure file
-            File dir = new File("/home/alvis/download/");
+            File dir = new File(mSavePath);
+            if (!(dir.exists() && dir.isDirectory())){
+                mCallback.recvFileFailed(RECV_FAILED_SAVE_PATH_ERROR, mSavePath);
+            }
             File file = new File(dir, filename);
             FileOutputStream fos = new FileOutputStream(file);
             byte[] buf = new byte[1024];

@@ -9,9 +9,11 @@ public class FileRecvHandler {
     private ServerSocket serverSocket;
     private boolean inLoop;
     private FileRecvCallback mCallback;
+    private String mSavePath;
 
-    public FileRecvHandler(FileRecvCallback callback){
+    public FileRecvHandler(FileRecvCallback callback, String savePath){
         mCallback = callback;
+        mSavePath = savePath;
     }
 
     public boolean startListen(int port){
@@ -33,10 +35,10 @@ public class FileRecvHandler {
         public void run() {
 
             while (inLoop){
-                try {   //todo: complete the method
+                try {
                     Socket socketAccept = serverSocket.accept();
                     System.out.println("got an client want to send file.");
-                    new Thread(new FileRecvThread(mCallback, socketAccept)).start();
+                    new Thread(new FileRecvThread(mCallback, socketAccept, mSavePath)).start();
 
                 } catch (IOException e) {
                     e.printStackTrace();

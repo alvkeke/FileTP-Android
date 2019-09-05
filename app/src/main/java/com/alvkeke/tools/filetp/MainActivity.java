@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,12 +27,14 @@ import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity implements BroadcastCallback, FileRecvCallback {
 
     private HashMap<String, InetAddress> olUsers;
-    private ArrayList<String> credibleUsers;
+    private Set<String> credibleUsers;
 
     private ListView mFileList;
     private FileListAdapter mAdapter;
@@ -39,17 +44,22 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        olUsers = new HashMap<>();
-        credibleUsers = new ArrayList<>();
-        // todo: load credible users from configure
-        credibleUsers.add("alv-manjaro");
-        credibleUsers.add("alv-rasp3b");
-        credibleUsers.add("alv-xiaomi-4s");
+        SharedPreferences conf = getSharedPreferences("configure", Context.MODE_PRIVATE);
 
-        // todo: load device name and begin port from configure
-        String deviceName = "alv-xiaomi-4s";
-        int beginPort = 10000;
-        startListenServer(deviceName, beginPort);
+        olUsers = new HashMap<>();
+        credibleUsers = conf.getStringSet("credibleUsers", new HashSet<String>());
+
+        // todo: delete these code for test
+        if (credibleUsers != null) {
+            credibleUsers.add("alv-manjaro");
+            credibleUsers.add("alv-rasp3b");
+            credibleUsers.add("alv-xiaomi-4s");
+        }
+
+        String deviceName = conf.getString("deviceName", "phone");
+        int beginPort = conf.getInt("beginPort", 10000);
+        String savePath = conf.getString("savePath", "");
+        startListenServer(deviceName, beginPort, savePath);
 
         mFileList = findViewById(R.id.lv_file_explorer);
         mFileList.setDivider(null);
@@ -58,8 +68,8 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         mAdapter = new FileListAdapter(this, dirList, fileList);
         mFileList.setAdapter(mAdapter);
 
-        // todo: load hide file setting from configure
-        mAdapter.setShowHideFile(true);
+        boolean showHideFile = conf.getBoolean("showHideFile", true);
+        mAdapter.setShowHideFile(showHideFile);
 
         setEventListener();
         askForPermission();
@@ -75,9 +85,8 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         });
     }
 
-    void startListenServer(String deviceName, int beginPort){
+    void startListenServer(String deviceName, int beginPort, String savePath){
 
-        // todo: change deviceName, load from configure
         BroadcastHandler bcHandler = new BroadcastHandler(deviceName, this);
         if (!bcHandler.startListen(beginPort)){
             Log.e("error", "start broadcast handler failed");
@@ -87,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         bcHandler.requestBroadcast();
         Log.e("success", "start broadcast handler");
 
-        FileRecvHandler frHandler = new FileRecvHandler(this);
+        FileRecvHandler frHandler = new FileRecvHandler(this, savePath);
         if (!frHandler.startListen(beginPort)){
             bcHandler.exit();
             Log.e("error", "start file receive handler failed");
@@ -140,21 +149,21 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
     }
 
     @Override
-    public void gotClientOnline(String user, InetAddress address) {
+    public void gotClientOnline(String deviceName, InetAddress address) {
 
-        olUsers.put(user, address);
-        Log.e("broadcast", user);
+        olUsers.put(deviceName, address);
+        Log.e("broadcast", deviceName);
     }
 
     @Override
-    public void gotClientOffline(String user) {
-        olUsers.remove(user);
+    public void gotClientOffline(String deviceName) {
+        olUsers.remove(deviceName);
     }
 
     @Override
-    public boolean isCredible(String username) {
+    public boolean isCredible(String deviceName) {
         for (String s : credibleUsers){
-            if (s.equals(username)){
+            if (s.equals(deviceName)){
                 return true;
             }
         }
@@ -173,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
     }
 
     @Override
-    public void recvFileFailed(byte Reason, String param) {
+    public void recvFileFailed(byte Reason, final String param) {
         switch (Reason){
             case FileRecvThread.RECV_FAILED_DATA_ERROR:
                 Log.e("debug", "error data:" + param);
@@ -182,6 +191,22 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
                 Toast.makeText(getApplicationContext(),
                         param + " 尝试发送文件，但被阻止", Toast.LENGTH_SHORT).show();
                 break;
+            case FileRecvThread.RECV_FAILED_SAVE_PATH_ERROR:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("接收文件")
+                        .setMessage("保存路径不存在，是否创建?\n(此时创建文件夹并不能保存当前传输的文件)");
+                builder.setNegativeButton("取消",null);
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        if (!new File(param).mkdir()){
+                            Toast.makeText(getApplicationContext(),
+                                    "自动创建失败。。。", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
         }
     }
 

@@ -54,7 +54,7 @@ public class FileListAdapter extends BaseAdapter {
 
     public void rankList(){
 
-        // todo: rank directories and files by name
+        // rank directories and files by name
         Collections.sort(mDirList);
         Collections.sort(mFileList);
     }
