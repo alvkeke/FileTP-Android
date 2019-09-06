@@ -9,14 +9,14 @@ import java.util.Arrays;
 
 public class BroadcastHandler {
 
-    private String mDeviceName;
+    private String mLocalDeviceName;
     private DatagramSocket mSocket;
     private int mBroadPort;
     private BroadcastCallback mCallback;
     private boolean inLoop;
 
-    public BroadcastHandler(String deviceName, BroadcastCallback callback){
-        mDeviceName = deviceName;
+    public BroadcastHandler(String localDeviceName, BroadcastCallback callback){
+        mLocalDeviceName = localDeviceName;
         mCallback = callback;
     }
 
@@ -49,27 +49,27 @@ public class BroadcastHandler {
                 try {
                     mSocket.receive(packet);
 
-                    // cmd(30) + deviceName
+                    // cmd(30) + remoteDeviceName
                     String data = new String(packet.getData()).trim();
                     if (data.length() <= 30){
                         continue;   // 防止字符串过短而导致程序关闭
                     }
                     String cmd = data.substring(0, 30);
-                    String deviceName = data.substring(30);
+                    String remoteDeviceName = data.substring(30);
 
-                    InetAddress remoteAddr = packet.getAddress();
+                    InetAddress remoteAddress = packet.getAddress();
 
-                    if (deviceName.equals(mDeviceName)){
+                    if (remoteDeviceName.equals(mLocalDeviceName)){
                         continue;
                     }
 
                     switch (cmd) {
                         case Cs.CMD_LOGIN_STR:
-                            mCallback.gotClientOffline(deviceName);
-                            mCallback.gotClientOnline(deviceName, remoteAddr);
+                            mCallback.gotClientOffline(remoteDeviceName);
+                            mCallback.gotClientOnline(remoteDeviceName, remoteAddress);
                             break;
                         case Cs.CMD_LOGOUT_STR:
-                            mCallback.gotClientOffline(deviceName);
+                            mCallback.gotClientOffline(remoteDeviceName);
                             break;
                         case Cs.CMD_BROADCAST_REQUEST:
                             broadcast();
@@ -90,7 +90,7 @@ public class BroadcastHandler {
 
     public void broadcast(){
         // complete the method that broadcast this client's msg to other client
-        String strSend = Cs.CMD_LOGIN_STR + mDeviceName;
+        String strSend = Cs.CMD_LOGIN_STR + mLocalDeviceName;
         byte[] data = strSend.getBytes();
         try {
             InetAddress address = InetAddress.getByName("255.255.255.255");
@@ -104,7 +104,7 @@ public class BroadcastHandler {
     public void requestBroadcast(){
 
         // complete the method that broadcast this client's msg to other client
-        String strSend = Cs.CMD_BROADCAST_REQUEST + mDeviceName;
+        String strSend = Cs.CMD_BROADCAST_REQUEST + mLocalDeviceName;
         byte[] data = strSend.getBytes();
         try {
             InetAddress address = InetAddress.getByName("255.255.255.255");

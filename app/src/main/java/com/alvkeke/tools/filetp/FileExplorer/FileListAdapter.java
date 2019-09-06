@@ -1,4 +1,4 @@
-package com.alvkeke.tools.filetp;
+package com.alvkeke.tools.filetp.FileExplorer;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,25 +8,28 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.alvkeke.tools.filetp.R;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class FileListAdapter extends BaseAdapter {
 
+    private File mCurrentPath;
     private ArrayList<File> mDirList;
     private ArrayList<File> mFileList;
     private LayoutInflater mInflater;
 
     private boolean showHideFile;
 
-    FileListAdapter(Context context, ArrayList<File> dirList, ArrayList<File> fileList){
+    public FileListAdapter(Context context, ArrayList<File> dirList, ArrayList<File> fileList){
         mDirList = dirList;
         mFileList = fileList;
         mInflater = LayoutInflater.from(context);
     }
 
-    boolean setPath(File path){
+    public boolean setPath(File path){
 
         if (!path.exists()){
             return false;
@@ -36,6 +39,9 @@ public class FileListAdapter extends BaseAdapter {
         if (isPath){
             File[] children = path.listFiles();
             if (children == null) return false;
+            mCurrentPath = path;
+            mDirList.clear();
+            mFileList.clear();
             for (File e : children){
                 if (e.isDirectory()){
                     mDirList.add(e);
@@ -45,7 +51,13 @@ public class FileListAdapter extends BaseAdapter {
             }
         }
 
+        rankList();
+
         return isPath;
+    }
+
+    public boolean moveToLastPath(){
+        return setPath(mCurrentPath.getParentFile());
     }
 
     public void setShowHideFile(boolean showHideFile) {
@@ -116,7 +128,8 @@ public class FileListAdapter extends BaseAdapter {
             return convertView;
         }
 
-        if (!showHideFile && file.getName().substring(0,1).equals(".")){
+//        if (!showHideFile && file.getName().substring(0,1).equals(".")){
+        if (!showHideFile && file.isHidden()){
             setVisible(convertView, holder, View.GONE);
             return convertView;
         }

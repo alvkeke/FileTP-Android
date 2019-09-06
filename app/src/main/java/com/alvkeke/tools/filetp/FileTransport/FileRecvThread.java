@@ -33,6 +33,9 @@ public class FileRecvThread implements Runnable{
 
             if (!mCallback.isCredible(deviceName)){
                 mCallback.recvFileFailed(RECV_FAILED_INCREDIBLE, deviceName);
+                dis.close();
+                mSocket.close();
+                return;
             }
 
             File dir = new File(mSavePath);

@@ -17,11 +17,13 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.alvkeke.tools.filetp.FileExplorer.FileListAdapter;
 import com.alvkeke.tools.filetp.FileTransport.BroadcastCallback;
 import com.alvkeke.tools.filetp.FileTransport.BroadcastHandler;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvCallback;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvHandler;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
+import com.alvkeke.tools.filetp.FileTransport.FileSender;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -33,33 +35,43 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements BroadcastCallback, FileRecvCallback {
 
-    private HashMap<String, InetAddress> olUsers;
-    private Set<String> credibleUsers;
+    private HashMap<String, InetAddress> mOnlineUsers;
+    private Set<String> mCredibleUsers;
 
     private ListView mFileList;
     private FileListAdapter mAdapter;
+
+    private String mLocalDeviceName;
+    private int mBeginPort;
+    private String mSavePath;
+    private boolean mIsShowHideFile;
+
+    private final static String CONF_NAME = "configure";
+    private final static String CONF_KEY_DEVICE_NAME = "deviceName";
+    private final static String CONF_KEY_BEGIN_PORT = "beginPort";
+    private final static String CONF_KEY_SAVE_PATH = "savePath";
+    private final static String CONF_KEY_CREDIBLE_USERS = "credibleUsers";
+    private final static String CONF_KEY_SHOW_HIDE_FILE = "showHideFile";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences conf = getSharedPreferences("configure", Context.MODE_PRIVATE);
+        mOnlineUsers = new HashMap<>();
 
-        olUsers = new HashMap<>();
-        credibleUsers = conf.getStringSet("credibleUsers", new HashSet<String>());
+        restoreConfigure();
 
         // todo: delete these code for test
-        if (credibleUsers != null) {
-            credibleUsers.add("alv-manjaro");
-            credibleUsers.add("alv-rasp3b");
-            credibleUsers.add("alv-xiaomi-4s");
+        if (mCredibleUsers != null) {
+            mCredibleUsers.add("alv-manjaro");
+            mCredibleUsers.add("alv-rasp3b");
+            mCredibleUsers.add("alv-xiaomi-4s");
         }
 
-        String deviceName = conf.getString("deviceName", "phone");
-        int beginPort = conf.getInt("beginPort", 10000);
-        String savePath = conf.getString("savePath", "");
-        startListenServer(deviceName, beginPort, savePath);
+//        startListenServer(mLocalDeviceName, mBeginPort, mSavePath);
+        startListenServer();
 
         mFileList = findViewById(R.id.lv_file_explorer);
         mFileList.setDivider(null);
@@ -68,11 +80,30 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         mAdapter = new FileListAdapter(this, dirList, fileList);
         mFileList.setAdapter(mAdapter);
 
-        boolean showHideFile = conf.getBoolean("showHideFile", true);
-        mAdapter.setShowHideFile(showHideFile);
+        mAdapter.setShowHideFile(mIsShowHideFile);
 
         setEventListener();
         askForPermission();
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!mAdapter.moveToLastPath()) {
+            super.onBackPressed();
+        }
+        mAdapter.notifyDataSetChanged();
+    }
+
+    void restoreConfigure(){
+
+        SharedPreferences conf = getSharedPreferences(CONF_NAME, Context.MODE_PRIVATE);
+
+        mCredibleUsers = conf.getStringSet(CONF_KEY_CREDIBLE_USERS, new HashSet<String>());
+        mLocalDeviceName = conf.getString(CONF_KEY_DEVICE_NAME, "phone");
+        mBeginPort = conf.getInt(CONF_KEY_BEGIN_PORT, 10000);
+        mSavePath = conf.getString(CONF_KEY_SAVE_PATH, "");
+        mIsShowHideFile = conf.getBoolean(CONF_KEY_SHOW_HIDE_FILE, false);
 
     }
 
@@ -81,14 +112,69 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.e("click", "position: " + position);
+                File dir = mAdapter.getItem(position);
+
+                if (!dir.exists()) {
+                    Log.e("error", "directory is not exist");
+                    return;
+                }
+
+                if (dir.isDirectory()){
+                    Log.e("debug", "change directory");
+                    mAdapter.setPath(dir);
+//                    mAdapter.rankList();
+                    mAdapter.notifyDataSetChanged();
+
+                }
+
+            }
+        });
+
+        mFileList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            File fileToSend;
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Log.e("long click", "position: " + position);
+                fileToSend = mAdapter.getItem(position);
+                Log.e("debug", "send file: "+ fileToSend.getAbsolutePath());
+
+                if (!fileToSend.exists()) return true;
+
+                if (fileToSend.isDirectory()){
+
+                }else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("发送文件")
+                            .setMessage("确定要发送\n" + fileToSend.getName() + "\n吗?" +
+                                    "(size:" + fileToSend.length() +"B)")
+                            .setNegativeButton("取消", null)
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    InetAddress address = mOnlineUsers.get("alv-manjaro");
+                                    if (address == null){
+                                        Toast.makeText(getApplicationContext(),
+                                                "该用户已离线", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    FileSender fileSender = new FileSender(mLocalDeviceName, address, mBeginPort);
+                                    fileSender.send(fileToSend);
+                                }
+                            });
+                    builder.create().show();
+                }
+                return true;
             }
         });
     }
 
-    void startListenServer(String deviceName, int beginPort, String savePath){
+    void startListenServer(){
+//        void startListenServer(String deviceName, int beginPort, String savePath){
 
-        BroadcastHandler bcHandler = new BroadcastHandler(deviceName, this);
-        if (!bcHandler.startListen(beginPort)){
+        BroadcastHandler bcHandler = new BroadcastHandler(mLocalDeviceName, this);
+        if (!bcHandler.startListen(mBeginPort)){
             Log.e("error", "start broadcast handler failed");
             return;
         }
@@ -96,8 +182,8 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         bcHandler.requestBroadcast();
         Log.e("success", "start broadcast handler");
 
-        FileRecvHandler frHandler = new FileRecvHandler(this, savePath);
-        if (!frHandler.startListen(beginPort)){
+        FileRecvHandler frHandler = new FileRecvHandler(this, mSavePath);
+        if (!frHandler.startListen(mBeginPort)){
             bcHandler.exit();
             Log.e("error", "start file receive handler failed");
             return;
@@ -126,12 +212,12 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         }
     }
 
-    void showSdcardFiles(){
+    void showSdcardRootFiles(){
 
         File sdcard = new File(System.getenv("EXTERNAL_STORAGE"));
 
         mAdapter.setPath(sdcard);
-        mAdapter.rankList();
+//        mAdapter.rankList();
         mAdapter.notifyDataSetChanged();
     }
 
@@ -144,31 +230,41 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
                     finish();
                 }
             }
-            showSdcardFiles();
+            showSdcardRootFiles();
         }
     }
 
     @Override
     public void gotClientOnline(String deviceName, InetAddress address) {
 
-        olUsers.put(deviceName, address);
+        mOnlineUsers.put(deviceName, address);
         Log.e("broadcast", deviceName);
     }
 
     @Override
     public void gotClientOffline(String deviceName) {
-        olUsers.remove(deviceName);
+        mOnlineUsers.remove(deviceName);
     }
 
     @Override
     public boolean isCredible(String deviceName) {
-        for (String s : credibleUsers){
+        for (String s : mCredibleUsers){
             if (s.equals(deviceName)){
                 return true;
             }
         }
 
         return false;
+    }
+
+    @Override
+    public void recvFileBegin() {
+
+    }
+
+    @Override
+    public void recvFileInProcess() {
+
     }
 
     @Override
