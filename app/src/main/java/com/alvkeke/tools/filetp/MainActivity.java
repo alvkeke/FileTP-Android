@@ -79,13 +79,6 @@ public class MainActivity extends AppCompatActivity
 
         restoreConfigure();
 
-        // todo: delete these code for test
-        if (mCredibleUsers != null) {
-            mCredibleUsers.add("alv-manjaro");
-            mCredibleUsers.add("alv-rasp3b");
-            mCredibleUsers.add("alv-xiaomi-4s");
-        }
-
         startListenServer();
 
         mFileList = findViewById(R.id.lv_file_explorer);
@@ -210,12 +203,21 @@ public class MainActivity extends AppCompatActivity
         mIsShowHideFile = conf.getBoolean(CONF_KEY_SHOW_HIDE_FILE, true);
         mAllowThreadNumber = conf.getInt(CONF_KEY_ALLOW_THREAD_NUMBER, -1);
 
+        SharedPreferences.Editor editor = conf.edit();
         if (mSavePath.isEmpty()){
-            SharedPreferences.Editor editor = conf.edit();
             mSavePath = System.getenv("EXTERNAL_STORAGE") + "/Download/";
             editor.putString(CONF_KEY_SAVE_PATH, mSavePath);
-            editor.apply();
         }
+
+        // todo: delete these codes
+        if (mCredibleUsers.isEmpty()){
+            mCredibleUsers.add("alv-manjaro");
+            mCredibleUsers.add("alv-rasp3b");
+            mCredibleUsers.add("alv-xiaomi-4s");
+            mCredibleUsers.add("alv-xiaomi-9se");
+            editor.putStringSet(CONF_KEY_CREDIBLE_USERS, mCredibleUsers);
+        }
+        editor.apply();
 
     }
 

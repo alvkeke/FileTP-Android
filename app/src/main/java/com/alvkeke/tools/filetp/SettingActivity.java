@@ -4,18 +4,24 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.alvkeke.tools.filetp.MainActivity.*;
@@ -70,9 +76,9 @@ public class SettingActivity extends AppCompatActivity {
         title = "端口：" + mBeginPort;
         btnSetBeginPort.setText(title);
         if (mAllowThreadNumber>0) {
-            title = "传输速度：" + mAttendDeviceName;
+            title = "线程数" + mAttendDeviceName;
         } else {
-            title = "传输速度：无限制";
+            title = "线程数：无限制";
         }
         btnSetThreadNumber.setText(title);
 
@@ -106,9 +112,21 @@ public class SettingActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
 
+            final EditText et = new EditText(SettingActivity.this);
+            et.setText(mLocalDeviceName);
+            et.setSelectAllOnFocus(true);
             AlertDialog.Builder builder = new AlertDialog.Builder(SettingActivity.this);
             builder.setTitle("设置设备名称")
-                    .setView(new EditText(SettingActivity.this));
+                    .setView(et)
+                    .setNegativeButton(R.string.string_cancel, null)
+                    .setPositiveButton(R.string.string_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mLocalDeviceName = et.getText().toString();
+                            String title = "设备名称：" + mLocalDeviceName;
+                            btnSetDeviceName.setText(title);
+                        }
+                    });
             builder.create().show();
         }
     }
@@ -118,6 +136,26 @@ public class SettingActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
 
+            final EditText et = new EditText(SettingActivity.this);
+            et.setText(String.valueOf(mBeginPort));
+            et.setSelectAllOnFocus(true);
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingActivity.this);
+            builder.setTitle("设置端口")
+                    .setView(et)
+                    .setNegativeButton(R.string.string_cancel, null)
+                    .setPositiveButton(R.string.string_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                mBeginPort = Integer.parseInt(et.getText().toString());
+                                String title = "端口：" + mBeginPort;
+                                btnSetBeginPort.setText(title);
+                            }catch (NumberFormatException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+            builder.create().show();
         }
     }
 
@@ -125,6 +163,27 @@ public class SettingActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
+
+            final EditText et = new EditText(SettingActivity.this);
+            et.setText(String.valueOf(mAllowThreadNumber));
+            et.setSelectAllOnFocus(true);
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingActivity.this);
+            builder.setTitle("设置进程数")
+                    .setView(et)
+                    .setNegativeButton(R.string.string_cancel, null)
+                    .setPositiveButton(R.string.string_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                mAllowThreadNumber = Integer.parseInt(et.getText().toString());
+                                String title = "进程数：" + mAllowThreadNumber;
+                                btnSetBeginPort.setText(title);
+                            }catch (NumberFormatException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+            builder.create().show();
 
         }
     }
@@ -134,6 +193,11 @@ public class SettingActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
 
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingActivity.this);
+            builder.setTitle("当前文件接收保存目录")  // todo: 修改此处提示
+                    .setMessage(mSavePath + "\n如需修改请在主界面修改目录到需要的目录，然后")
+                    .setPositiveButton(R.string.string_ok,null);
+            builder.create().show();
         }
     }
 
@@ -141,7 +205,17 @@ public class SettingActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
+            ListView listView = new ListView(SettingActivity.this);
+            ArrayList<String> items = new ArrayList<>(mCredibleUsers);
+            listView.setAdapter(new ArrayAdapter<>(SettingActivity.this,
+                    android.R.layout.simple_expandable_list_item_1, items));
 
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingActivity.this);
+            builder.setTitle("可信列表")  // todo: 修改此处提示
+                    .setMessage("如需修改请在主界面")
+                    .setView(listView)
+                    .setPositiveButton(R.string.string_ok,null);
+            builder.create().show();
         }
     }
 
