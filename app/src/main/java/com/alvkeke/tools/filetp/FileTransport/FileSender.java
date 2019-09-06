@@ -15,8 +15,10 @@ public class FileSender {
     private String mLocalDeviceName;
     private InetAddress mAddress;
     private int mPort;
+    private FileSenderCallback mCallback;
 
-    public FileSender(String localDeviceName, InetAddress address, int port){
+    public FileSender(FileSenderCallback callback, String localDeviceName, InetAddress address, int port){
+        mCallback = callback;
         mLocalDeviceName = localDeviceName;
         mAddress = address;
         mPort = port;
@@ -62,10 +64,12 @@ public class FileSender {
                 dos.close();
 
                 socket.close();
+                mCallback.sendFileSuccess(file);
 
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e("debug", "file send failed");
+                mCallback.sendFileFailed(file);
             }
         }
     }

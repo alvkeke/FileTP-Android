@@ -8,10 +8,13 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -24,6 +27,7 @@ import com.alvkeke.tools.filetp.FileTransport.FileRecvCallback;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvHandler;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
 import com.alvkeke.tools.filetp.FileTransport.FileSender;
+import com.alvkeke.tools.filetp.FileTransport.FileSenderCallback;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -33,25 +37,35 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class MainActivity extends AppCompatActivity implements BroadcastCallback, FileRecvCallback {
+public class MainActivity extends AppCompatActivity
+        implements BroadcastCallback, FileRecvCallback, FileSenderCallback {
 
     private HashMap<String, InetAddress> mOnlineUsers;
     private Set<String> mCredibleUsers;
+
+    private Menu mMenu;
 
     private ListView mFileList;
     private FileListAdapter mAdapter;
 
     private String mLocalDeviceName;
+    private String mAttendDeviceName;
     private int mBeginPort;
     private String mSavePath;
     private boolean mIsShowHideFile;
 
+    private Set<File> mWaitingTasks;
+    private Set<File> mRunningTasks;
+    private int mAllowThreadNumber;
+
     private final static String CONF_NAME = "configure";
     private final static String CONF_KEY_DEVICE_NAME = "deviceName";
+    private final static String CONF_KEY_ATTEND_DEVICE = "attendDevice";
     private final static String CONF_KEY_BEGIN_PORT = "beginPort";
     private final static String CONF_KEY_SAVE_PATH = "savePath";
     private final static String CONF_KEY_CREDIBLE_USERS = "credibleUsers";
     private final static String CONF_KEY_SHOW_HIDE_FILE = "showHideFile";
+    private final static String CONF_KEY_ALLOW_THREAD_NUMBER = "allowThreadNumber";
 
 
     @Override
@@ -60,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         setContentView(R.layout.activity_main);
 
         mOnlineUsers = new HashMap<>();
+        mWaitingTasks = new HashSet<>();
+        mRunningTasks = new HashSet<>();
 
         restoreConfigure();
 
@@ -70,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
             mCredibleUsers.add("alv-xiaomi-4s");
         }
 
-//        startListenServer(mLocalDeviceName, mBeginPort, mSavePath);
         startListenServer();
 
         mFileList = findViewById(R.id.lv_file_explorer);
@@ -95,15 +110,104 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         mAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+        menu.findItem(R.id.menu_main_select_all).setVisible(false);
+        menu.findItem(R.id.menu_main_send).setVisible(false);
+        mMenu = menu;
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_main_select_all:
+
+                if (mAdapter.isSelectAll()){
+                    mAdapter.unselectAll();
+                } else {
+                    mAdapter.selectAll();
+                }
+                setFileMenuVisible(mAdapter.hasSelected());
+                mAdapter.notifyDataSetChanged();
+                break;
+            case R.id.menu_main_send:
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("发送文件")
+                        .setMessage("确定要发送选中的所有文件吗?")
+                        .setNegativeButton("取消", null)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                // 添加到任务队列
+                                for (File e : mAdapter.getSelectFiles()){
+                                    addTask(e);
+                                }
+                                checkWaitingTasks();
+                                mAdapter.unselectAll();
+                                mAdapter.notifyDataSetChanged();
+                            }
+                        });
+                builder.create().show();
+                break;
+            case R.id.menu_main_setting:
+
+                Intent intentSetting = new Intent(MainActivity.this, SettingActivity.class);
+                // todo: change the request code
+                startActivityForResult(intentSetting, 1);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    void addTask(File file){
+        mWaitingTasks.add(file);
+    }
+
+    void removeTask(File file){
+        mRunningTasks.remove(file);
+    }
+
+    void checkWaitingTasks(){
+
+        for (File file : mWaitingTasks){
+            if (mWaitingTasks.size() >= mAllowThreadNumber && mAllowThreadNumber>0){
+                break;
+            }
+
+            InetAddress address = mOnlineUsers.get(mAttendDeviceName);
+            if (address == null){
+                Toast.makeText(getApplicationContext(),
+                        "该用户已离线", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            FileSender sender = new FileSender(this, mLocalDeviceName, address, mBeginPort);
+            sender.send(file);
+            mRunningTasks.add(file);
+        }
+        mWaitingTasks.removeAll(mRunningTasks);
+    }
+
+    void setFileMenuVisible(boolean visible){
+        mMenu.findItem(R.id.menu_main_send).setVisible(visible);
+        mMenu.findItem(R.id.menu_main_select_all).setVisible(visible);
+    }
+
     void restoreConfigure(){
 
         SharedPreferences conf = getSharedPreferences(CONF_NAME, Context.MODE_PRIVATE);
 
         mCredibleUsers = conf.getStringSet(CONF_KEY_CREDIBLE_USERS, new HashSet<String>());
         mLocalDeviceName = conf.getString(CONF_KEY_DEVICE_NAME, "phone");
+        mAttendDeviceName = conf.getString(CONF_KEY_ATTEND_DEVICE, "alv-manjaro");
         mBeginPort = conf.getInt(CONF_KEY_BEGIN_PORT, 10000);
         mSavePath = conf.getString(CONF_KEY_SAVE_PATH, "");
-        mIsShowHideFile = conf.getBoolean(CONF_KEY_SHOW_HIDE_FILE, false);
+        mIsShowHideFile = conf.getBoolean(CONF_KEY_SHOW_HIDE_FILE, true);
+        mAllowThreadNumber = conf.getInt(CONF_KEY_ALLOW_THREAD_NUMBER, -1);
 
     }
 
@@ -111,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         mFileList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.e("click", "position: " + position);
+
                 File dir = mAdapter.getItem(position);
 
                 if (!dir.exists()) {
@@ -122,9 +226,11 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
                 if (dir.isDirectory()){
                     Log.e("debug", "change directory");
                     mAdapter.setPath(dir);
-//                    mAdapter.rankList();
                     mAdapter.notifyDataSetChanged();
-
+                } else {
+                    mAdapter.toggleSelectState(position);
+                    setFileMenuVisible(mAdapter.hasSelected());
+                    mAdapter.notifyDataSetChanged();
                 }
 
             }
@@ -142,7 +248,25 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
                 if (!fileToSend.exists()) return true;
 
                 if (fileToSend.isDirectory()){
+                    // 发送文件夹中的所有文件
 
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("发送文件")
+                            .setMessage("确定要发送文件夹：\n" + fileToSend.getName() +
+                                    "\n下的所有文件吗? (不包括子文件夹内的文件)")
+                            .setNegativeButton("取消", null)
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    for (File file : fileToSend.listFiles()) {
+                                        addTask(file);
+                                    }
+
+                                    checkWaitingTasks();
+                                }
+                            });
+                    builder.create().show();
                 }else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setTitle("发送文件")
@@ -153,14 +277,8 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    InetAddress address = mOnlineUsers.get("alv-manjaro");
-                                    if (address == null){
-                                        Toast.makeText(getApplicationContext(),
-                                                "该用户已离线", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                    FileSender fileSender = new FileSender(mLocalDeviceName, address, mBeginPort);
-                                    fileSender.send(fileToSend);
+                                    addTask(fileToSend);
+                                    checkWaitingTasks();
                                 }
                             });
                     builder.create().show();
@@ -171,7 +289,6 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
     }
 
     void startListenServer(){
-//        void startListenServer(String deviceName, int beginPort, String savePath){
 
         BroadcastHandler bcHandler = new BroadcastHandler(mLocalDeviceName, this);
         if (!bcHandler.startListen(mBeginPort)){
@@ -190,8 +307,14 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         }
         Log.e("success", "start file receive handler");
 
+    }
 
+    void showSdcardRootFiles(){
 
+        File sdcard = new File(System.getenv("EXTERNAL_STORAGE"));
+
+        mAdapter.setPath(sdcard);
+        mAdapter.notifyDataSetChanged();
     }
 
     private static String[] PERMISSIONS_STORAGE = {
@@ -210,15 +333,6 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
             ActivityCompat.requestPermissions(this,
                     PERMISSIONS_STORAGE, STORAGE_PERMISSION_REQUEST_CODE);
         }
-    }
-
-    void showSdcardRootFiles(){
-
-        File sdcard = new File(System.getenv("EXTERNAL_STORAGE"));
-
-        mAdapter.setPath(sdcard);
-//        mAdapter.rankList();
-        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -306,4 +420,26 @@ public class MainActivity extends AppCompatActivity implements BroadcastCallback
         }
     }
 
+    @Override
+    public void sendFileFailed(File file) {
+        removeTask(file);
+    }
+
+    @Override
+    public void sendFileSuccess(final File file) {
+        removeTask(file);
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Toast.makeText(getApplicationContext(),
+//                        file.getName() + " 发送成功", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+        checkWaitingTasks();
+    }
+
+    @Override
+    public void sendFileInProcess() {
+
+    }
 }

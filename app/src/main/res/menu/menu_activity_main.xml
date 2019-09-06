@@ -5,14 +5,17 @@
     <item
         android:id="@+id/menu_main_send"
         app:showAsAction="ifRoom"
-        android:title="发送"
+        android:icon="@drawable/ic_send"
+        android:title="@string/title_menu_send"
         />
     <item
         android:id="@+id/menu_main_select_all"
         app:showAsAction="always"
-        android:title="全选"
+        android:icon="@drawable/ic_select_all"
+        android:title="@string/title_menu_select_all"
         />
     <item
         android:id="@+id/menu_main_setting"
-        android:title="设置"/>
+        android:icon="@drawable/ic_settings"
+        android:title="@string/title_menu_setting"/>
 </menu>

@@ -1,6 +1,7 @@
 package com.alvkeke.tools.filetp.FileExplorer;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,8 @@ import com.alvkeke.tools.filetp.R;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FileListAdapter extends BaseAdapter {
 
@@ -21,12 +24,16 @@ public class FileListAdapter extends BaseAdapter {
     private ArrayList<File> mFileList;
     private LayoutInflater mInflater;
 
+    private Set<Integer> mSelectItems;
+
     private boolean showHideFile;
 
     public FileListAdapter(Context context, ArrayList<File> dirList, ArrayList<File> fileList){
         mDirList = dirList;
         mFileList = fileList;
         mInflater = LayoutInflater.from(context);
+
+        mSelectItems = new HashSet<>();
     }
 
     public boolean setPath(File path){
@@ -56,6 +63,55 @@ public class FileListAdapter extends BaseAdapter {
         return isPath;
     }
 
+    public boolean isSelected(int pos){
+        return mSelectItems.contains(pos);
+    }
+
+    public void selectItem(int pos){
+        if (!isSelected(pos))
+            mSelectItems.add(pos);
+    }
+
+    public void unselectItem(int pos){
+        mSelectItems.remove(pos);
+    }
+
+    public void toggleSelectState(int pos){
+        if (mSelectItems.contains(pos)){
+            mSelectItems.remove(pos);
+        } else {
+            mSelectItems.add(pos);
+        }
+
+    }
+
+    public boolean isSelectAll(){
+        return mSelectItems.size() == mFileList.size();
+    }
+
+    public void selectAll(){
+        for (int i = getDirsCount(); i<getCount(); i++){
+            selectItem(i);
+        }
+    }
+
+    public void unselectAll(){
+        mSelectItems.clear();
+    }
+
+    public boolean hasSelected(){
+        return !mSelectItems.isEmpty();
+    }
+
+    public Set<File> getSelectFiles(){
+        Set<File> set = new HashSet<>();
+        for (int i : mSelectItems){
+            set.add(getItem(i));
+        }
+
+        return set;
+    }
+
     public boolean moveToLastPath(){
         return setPath(mCurrentPath.getParentFile());
     }
@@ -76,6 +132,14 @@ public class FileListAdapter extends BaseAdapter {
         return mFileList.size() + mDirList.size();
     }
 
+    public int getDirsCount(){
+        return mDirList.size();
+    }
+
+    public int getFielsCount(){
+        return mFileList.size();
+    }
+
     @Override
     public File getItem(int position) {
         if (position < mDirList.size()) {
@@ -94,6 +158,7 @@ public class FileListAdapter extends BaseAdapter {
         ImageView icon;
         TextView name;
         View divider;
+        ImageView checker;
     }
 
     private void setVisible(View convertView, ViewHolder holder, int Visibility){
@@ -115,6 +180,7 @@ public class FileListAdapter extends BaseAdapter {
             holder.icon = convertView.findViewById(R.id.file_view_icon);
             holder.name = convertView.findViewById(R.id.file_view_name);
             holder.divider = convertView.findViewById(R.id.file_view_divider);
+            holder.checker = convertView.findViewById(R.id.file_view_check);
 
             convertView.setTag(holder);
         } else {
@@ -128,17 +194,26 @@ public class FileListAdapter extends BaseAdapter {
             return convertView;
         }
 
-//        if (!showHideFile && file.getName().substring(0,1).equals(".")){
         if (!showHideFile && file.isHidden()){
             setVisible(convertView, holder, View.GONE);
             return convertView;
         }
 
+        holder.checker.setVisibility(View.GONE);
         holder.name.setText(file.getName());
         if (file.isDirectory()){
             holder.icon.setImageResource(R.drawable.ic_folder);
         } else {
             holder.icon.setImageResource(R.drawable.ic_file);
+            if (hasSelected()){
+                holder.checker.setVisibility(View.VISIBLE);
+            }
+        }
+
+        if (isSelected(position)){
+            holder.checker.setImageResource(R.drawable.ic_checked);
+        } else {
+            holder.checker.setImageResource(R.drawable.ic_unchecked);
         }
 
         setVisible(convertView, holder, View.VISIBLE);

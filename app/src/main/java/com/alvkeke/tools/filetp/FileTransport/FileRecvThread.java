@@ -2,6 +2,7 @@ package com.alvkeke.tools.filetp.FileTransport;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Date;
 
 public class FileRecvThread implements Runnable{
 
@@ -43,6 +44,9 @@ public class FileRecvThread implements Runnable{
                 mCallback.recvFileFailed(RECV_FAILED_SAVE_PATH_ERROR, mSavePath);
             }
             File file = new File(dir, filename);
+            if (file.exists()){
+                file = new File(dir, filename +"_"+ new Date().getTime());
+            }
             FileOutputStream fos = new FileOutputStream(file);
             byte[] buf = new byte[1024];
             int length;

@@ -272,6 +272,10 @@
         "source": "/home/alvis/.gradle/caches/transforms-2/files-2.1/f6a183f8595ca34f3d5cc99d1f8bc322/appcompat-1.0.2/res/drawable-xxhdpi-v4/abc_spinner_mtrl_am_alpha.9.png"
     },
     {
+        "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable_ic_unchecked.xml.flat",
+        "source": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/res/drawable/ic_unchecked.xml"
+    },
+    {
         "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable-mdpi-v4_abc_ic_star_half_black_16dp.png.flat",
         "source": "/home/alvis/.gradle/caches/transforms-2/files-2.1/f6a183f8595ca34f3d5cc99d1f8bc322/appcompat-1.0.2/res/drawable-mdpi-v4/abc_ic_star_half_black_16dp.png"
     },
@@ -608,6 +612,10 @@
         "source": "/home/alvis/.gradle/caches/transforms-2/files-2.1/f6a183f8595ca34f3d5cc99d1f8bc322/appcompat-1.0.2/res/drawable-mdpi-v4/abc_ic_star_black_36dp.png"
     },
     {
+        "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable_ic_settings.xml.flat",
+        "source": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/res/drawable/ic_settings.xml"
+    },
+    {
         "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable-mdpi-v4_abc_textfield_default_mtrl_alpha.9.png.flat",
         "source": "/home/alvis/.gradle/caches/transforms-2/files-2.1/f6a183f8595ca34f3d5cc99d1f8bc322/appcompat-1.0.2/res/drawable-mdpi-v4/abc_textfield_default_mtrl_alpha.9.png"
     },
@@ -884,6 +892,10 @@
         "source": "/home/alvis/.gradle/caches/transforms-2/files-2.1/f6a183f8595ca34f3d5cc99d1f8bc322/appcompat-1.0.2/res/drawable/abc_cab_background_internal_bg.xml"
     },
     {
+        "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable_ic_send.xml.flat",
+        "source": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/res/drawable/ic_send.xml"
+    },
+    {
         "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable_abc_textfield_search_material.xml.flat",
         "source": "/home/alvis/.gradle/caches/transforms-2/files-2.1/f6a183f8595ca34f3d5cc99d1f8bc322/appcompat-1.0.2/res/drawable/abc_textfield_search_material.xml"
     },
@@ -974,6 +986,10 @@
     {
         "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/layout-v21_notification_template_custom_big.xml.flat",
         "source": "/home/alvis/.gradle/caches/transforms-2/files-2.1/72b2b92ec4ab73ff21fb9bc348de3b22/core-1.0.1/res/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable_ic_checked.xml.flat",
+        "source": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/res/drawable/ic_checked.xml"
     },
     {
         "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable-xxhdpi-v4_abc_text_select_handle_middle_mtrl_dark.png.flat",
@@ -1330,6 +1346,10 @@
     {
         "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/color_abc_tint_edittext.xml.flat",
         "source": "/home/alvis/.gradle/caches/transforms-2/files-2.1/f6a183f8595ca34f3d5cc99d1f8bc322/appcompat-1.0.2/res/color/abc_tint_edittext.xml"
+    },
+    {
+        "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable_ic_select_all.xml.flat",
+        "source": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/res/drawable/ic_select_all.xml"
     },
     {
         "merged": "/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/res/merged/debug/drawable-hdpi-v4_notification_bg_low_normal.9.png.flat",

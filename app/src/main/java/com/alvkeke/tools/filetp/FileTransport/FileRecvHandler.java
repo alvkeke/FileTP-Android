@@ -1,5 +1,7 @@
 package com.alvkeke.tools.filetp.FileTransport;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -37,7 +39,7 @@ public class FileRecvHandler {
             while (inLoop){
                 try {
                     Socket socketAccept = serverSocket.accept();
-                    System.out.println("got an client want to send file.");
+                    Log.e("debug", "got an client want to send file.");
                     new Thread(new FileRecvThread(mCallback, socketAccept, mSavePath)).start();
 
                 } catch (IOException e) {

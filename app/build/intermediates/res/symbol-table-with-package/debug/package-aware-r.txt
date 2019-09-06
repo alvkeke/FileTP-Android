@@ -385,6 +385,7 @@ color colorAccent
 color colorPrimary
 color colorPrimaryDark
 color color_black
+color color_check_icon
 color color_file_icon
 color color_gray
 color color_icon_folder
@@ -541,6 +542,7 @@ dimen notification_small_icon_size_as_large
 dimen notification_subtext_size
 dimen notification_top_pad
 dimen notification_top_pad_large_text
+dimen size_file_icon
 dimen tooltip_corner_radius
 dimen tooltip_horizontal_padding
 dimen tooltip_margin
@@ -633,10 +635,15 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable ic_checked
 drawable ic_file
 drawable ic_folder
 drawable ic_launcher_background
 drawable ic_launcher_foreground
+drawable ic_select_all
+drawable ic_send
+drawable ic_settings
+drawable ic_unchecked
 drawable notification_action_background
 drawable notification_bg
 drawable notification_bg_low
@@ -708,6 +715,7 @@ id edit_query
 id end
 id expand_activities_button
 id expanded_menu
+id file_view_check
 id file_view_divider
 id file_view_icon
 id file_view_name
@@ -896,6 +904,9 @@ string abc_toolbar_collapse_description
 string app_name
 string search_menu_title
 string status_bar_notification_info_overflow
+string title_menu_select_all
+string title_menu_send
+string title_menu_setting
 style AlertDialog_AppCompat
 style AlertDialog_AppCompat_Light
 style Animation_AppCompat_Dialog

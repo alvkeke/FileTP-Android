@@ -11,22 +11,36 @@
         android:layout_marginTop="@dimen/distance_margin_file_icon"
         android:layout_marginEnd="@dimen/distance_margin_file_icon"
         android:layout_centerVertical="true"
-        android:layout_width="40dp"
-        android:layout_height="40dp"/>
+        android:layout_width="@dimen/size_file_icon"
+        android:layout_height="@dimen/size_file_icon"/>
 
     <TextView
         android:id="@+id/file_view_name"
         android:layout_toEndOf="@id/file_view_icon"
+        android:layout_toStartOf="@id/file_view_check"
         android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/distance_margin_file_icon"
         android:layout_marginStart="@dimen/distance_margin_file_icon"
+        android:layout_marginTop="@dimen/distance_margin_file_icon"
+        android:layout_marginBottom="@dimen/distance_margin_file_icon"
         android:textColor="@color/color_black"
         android:textSize="22sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <ImageView
+        android:id="@+id/file_view_check"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone"
+        android:layout_marginEnd="@dimen/distance_margin_file_icon"
+        android:layout_marginStart="@dimen/distance_margin_file_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"/>
+
     <View
         android:id="@+id/file_view_divider"
-        android:layout_below="@id/file_view_icon"
+        android:layout_alignParentBottom="true"
         android:background="@color/color_gray"
         android:layout_width="match_parent"
         android:layout_height="1dp"/>
