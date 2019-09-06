@@ -9,4 +9,6 @@
     <color name="color_file_icon">#d8cb91</color>
     <color name="color_icon_folder">#91d89d</color>
     <color name="color_check_icon">#CF0000</color>
+
+    <color name="color_menu_icon">#f09000</color>
 </resources>

@@ -2,4 +2,6 @@
 <resources>
     <dimen name="distance_margin_file_icon">10dp</dimen>
     <dimen name="size_file_icon">40dp</dimen>
+    <dimen name="distance_setting_toSide">40dp</dimen>
+    <dimen name="distance_setting_toTop">40dp</dimen>
 </resources>

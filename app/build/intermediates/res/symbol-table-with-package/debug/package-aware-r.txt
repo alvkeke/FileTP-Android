@@ -389,6 +389,7 @@ color color_check_icon
 color color_file_icon
 color color_gray
 color color_icon_folder
+color color_menu_icon
 color dim_foreground_disabled_material_dark
 color dim_foreground_disabled_material_light
 color dim_foreground_material_dark
@@ -520,6 +521,8 @@ dimen compat_notification_large_icon_max_width
 dimen disabled_alpha_material_dark
 dimen disabled_alpha_material_light
 dimen distance_margin_file_icon
+dimen distance_setting_toSide
+dimen distance_setting_toTop
 dimen highlight_alpha_material_colored
 dimen highlight_alpha_material_dark
 dimen highlight_alpha_material_light
@@ -635,11 +638,13 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable ic_cancel
 drawable ic_checked
 drawable ic_file
 drawable ic_folder
 drawable ic_launcher_background
 drawable ic_launcher_foreground
+drawable ic_ok
 drawable ic_select_all
 drawable ic_send
 drawable ic_settings
@@ -692,6 +697,11 @@ id barrier
 id beginning
 id blocking
 id bottom
+id btn_set_begin_port
+id btn_set_local_device_name
+id btn_set_thread_number
+id btn_show_credible_list
+id btn_show_save_path
 id buttonPanel
 id center
 id center_horizontal
@@ -735,6 +745,8 @@ id image
 id info
 id invisible
 id italic
+id label_switch_left
+id label_switch_right
 id left
 id line1
 id line3
@@ -744,6 +756,8 @@ id lv_file_explorer
 id menu_main_select_all
 id menu_main_send
 id menu_main_setting
+id menu_setting_cancel
+id menu_setting_ok
 id message
 id middle
 id multiply
@@ -793,6 +807,7 @@ id standard
 id start
 id submenuarrow
 id submit_area
+id switch_show_hide_file
 id tabMode
 id tag_transition_group
 id tag_unhandled_key_event_manager
@@ -860,6 +875,7 @@ layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material
 layout support_simple_spinner_dropdown_item
 menu menu_activity_main
+menu menu_activity_setting
 mipmap ic_launcher
 mipmap ic_launcher_round
 string abc_action_bar_home_description
@@ -904,9 +920,14 @@ string abc_toolbar_collapse_description
 string app_name
 string search_menu_title
 string status_bar_notification_info_overflow
+string string_cancel
+string string_ok
+string title_btn_show_credible_list
 string title_menu_select_all
 string title_menu_send
 string title_menu_setting
+string title_tv_hide_file
+string title_tv_show_file
 style AlertDialog_AppCompat
 style AlertDialog_AppCompat_Light
 style Animation_AppCompat_Dialog

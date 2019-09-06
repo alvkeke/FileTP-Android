@@ -58,14 +58,14 @@ public class MainActivity extends AppCompatActivity
     private Set<File> mRunningTasks;
     private int mAllowThreadNumber;
 
-    private final static String CONF_NAME = "configure";
-    private final static String CONF_KEY_DEVICE_NAME = "deviceName";
-    private final static String CONF_KEY_ATTEND_DEVICE = "attendDevice";
-    private final static String CONF_KEY_BEGIN_PORT = "beginPort";
-    private final static String CONF_KEY_SAVE_PATH = "savePath";
-    private final static String CONF_KEY_CREDIBLE_USERS = "credibleUsers";
-    private final static String CONF_KEY_SHOW_HIDE_FILE = "showHideFile";
-    private final static String CONF_KEY_ALLOW_THREAD_NUMBER = "allowThreadNumber";
+    public final static String CONF_NAME = "configure";
+    public final static String CONF_KEY_DEVICE_NAME = "deviceName";
+    public final static String CONF_KEY_ATTEND_DEVICE = "attendDevice";
+    public final static String CONF_KEY_BEGIN_PORT = "beginPort";
+    public final static String CONF_KEY_SAVE_PATH = "savePath";
+    public final static String CONF_KEY_CREDIBLE_USERS = "credibleUsers";
+    public final static String CONF_KEY_SHOW_HIDE_FILE = "showHideFile";
+    public final static String CONF_KEY_ALLOW_THREAD_NUMBER = "allowThreadNumber";
 
 
     @Override
@@ -147,6 +147,7 @@ public class MainActivity extends AppCompatActivity
                                     addTask(e);
                                 }
                                 checkWaitingTasks();
+                                setFileMenuVisible(false);
                                 mAdapter.unselectAll();
                                 mAdapter.notifyDataSetChanged();
                             }
@@ -208,6 +209,13 @@ public class MainActivity extends AppCompatActivity
         mSavePath = conf.getString(CONF_KEY_SAVE_PATH, "");
         mIsShowHideFile = conf.getBoolean(CONF_KEY_SHOW_HIDE_FILE, true);
         mAllowThreadNumber = conf.getInt(CONF_KEY_ALLOW_THREAD_NUMBER, -1);
+
+        if (mSavePath.isEmpty()){
+            SharedPreferences.Editor editor = conf.edit();
+            mSavePath = System.getenv("EXTERNAL_STORAGE") + "/Download/";
+            editor.putString(CONF_KEY_SAVE_PATH, mSavePath);
+            editor.apply();
+        }
 
     }
 

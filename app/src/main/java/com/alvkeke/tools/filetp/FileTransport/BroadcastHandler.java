@@ -89,30 +89,42 @@ public class BroadcastHandler {
     }
 
     public void broadcast(){
-        // complete the method that broadcast this client's msg to other client
-        String strSend = Cs.CMD_LOGIN_STR + mLocalDeviceName;
-        byte[] data = strSend.getBytes();
-        try {
-            InetAddress address = InetAddress.getByName("255.255.255.255");
-            DatagramPacket packet = new DatagramPacket(data, data.length, address, mBroadPort);
-            mSocket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // complete the method that broadcast this client's msg to other client
+                String strSend = Cs.CMD_LOGIN_STR + mLocalDeviceName;
+                byte[] data = strSend.getBytes();
+                try {
+                    InetAddress address = InetAddress.getByName("255.255.255.255");
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, mBroadPort);
+                    mSocket.send(packet);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
     }
 
     public void requestBroadcast(){
 
-        // complete the method that broadcast this client's msg to other client
-        String strSend = Cs.CMD_BROADCAST_REQUEST + mLocalDeviceName;
-        byte[] data = strSend.getBytes();
-        try {
-            InetAddress address = InetAddress.getByName("255.255.255.255");
-            DatagramPacket packet = new DatagramPacket(data, data.length, address, mBroadPort);
-            mSocket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // complete the method that broadcast this client's msg to other client
+                String strSend = Cs.CMD_BROADCAST_REQUEST + mLocalDeviceName;
+                byte[] data = strSend.getBytes();
+                try {
+                    InetAddress address = InetAddress.getByName("255.255.255.255");
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, mBroadPort);
+                    mSocket.send(packet);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
     }
 
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_setting_ok"
+        android:title="@string/string_ok"
+        android:icon="@drawable/ic_ok"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/menu_setting_cancel"
+        android:title="@string/string_cancel"
+        android:icon="@drawable/ic_cancel"
+        app:showAsAction="ifRoom"
+        />
+
+</menu>
