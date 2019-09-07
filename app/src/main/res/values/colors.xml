@@ -10,5 +10,7 @@
     <color name="color_icon_folder">#91d89d</color>
     <color name="color_check_icon">#CF0000</color>
 
-    <color name="color_menu_icon">#f09000</color>
+    <color name="color_menu_icon">#F09000</color>
+    <color name="color_background">#FFFFFF</color>
+    <color name="color_font">#000000</color>
 </resources>

@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -31,6 +32,8 @@ import com.alvkeke.tools.filetp.FileTransport.FileSenderCallback;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,6 +56,9 @@ public class MainActivity extends AppCompatActivity
     private int mBeginPort;
     private String mSavePath;
     private boolean mIsShowHideFile;
+
+    private BroadcastHandler bcHandler;
+    private FileRecvHandler frHandler;
 
     private Set<File> mWaitingTasks;
     private Set<File> mRunningTasks;
@@ -79,8 +85,6 @@ public class MainActivity extends AppCompatActivity
 
         restoreConfigure();
 
-        startListenServer();
-
         mFileList = findViewById(R.id.lv_file_explorer);
         mFileList.setDivider(null);
         ArrayList<File> dirList = new ArrayList<>();
@@ -90,9 +94,45 @@ public class MainActivity extends AppCompatActivity
 
         mAdapter.setShowHideFile(mIsShowHideFile);
 
+        String action = getIntent().getAction();
+        if (Intent.ACTION_MAIN.equals(action)) {
+            startListenServer();
+        }
+
         setEventListener();
         askForPermission();
 
+    }
+
+    @Override
+    protected void onRestart() {
+//        Log.e("restart", "yes");
+
+        Intent intent = getIntent();
+        String fileName = intent.getStringExtra(ShardedActivity.EXTRA_NAME_PATH);
+
+        if (fileName != null) {
+
+            File file = new File(fileName);
+            if (file.exists()) {
+                addTask(file);
+            }
+        }
+
+        ArrayList<String> fileList = intent.getStringArrayListExtra(ShardedActivity.EXTRA_NAME_PATH_LIST);
+
+        if (fileList != null && !fileList.isEmpty()){
+            for (String s : fileList){
+                File file = new File(s);
+                if (file.exists()){
+                    addTask(file);
+                }
+            }
+        }
+
+        checkWaitingTasks();
+
+        super.onRestart();
     }
 
     @Override
@@ -300,7 +340,7 @@ public class MainActivity extends AppCompatActivity
 
     void startListenServer(){
 
-        BroadcastHandler bcHandler = new BroadcastHandler(mLocalDeviceName, this);
+        bcHandler = new BroadcastHandler(mLocalDeviceName, this);
         if (!bcHandler.startListen(mBeginPort)){
             Log.e("error", "start broadcast handler failed");
             return;
@@ -309,7 +349,7 @@ public class MainActivity extends AppCompatActivity
         bcHandler.requestBroadcast();
         Log.e("success", "start broadcast handler");
 
-        FileRecvHandler frHandler = new FileRecvHandler(this, mSavePath);
+        frHandler = new FileRecvHandler(this, mSavePath);
         if (!frHandler.startListen(mBeginPort)){
             bcHandler.exit();
             Log.e("error", "start file receive handler failed");

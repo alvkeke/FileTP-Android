@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
+    android:background="@color/color_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -23,7 +24,7 @@
         android:layout_marginStart="@dimen/distance_margin_file_icon"
         android:layout_marginTop="@dimen/distance_margin_file_icon"
         android:layout_marginBottom="@dimen/distance_margin_file_icon"
-        android:textColor="@color/color_black"
+        android:textColor="@color/color_font"
         android:textSize="22sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

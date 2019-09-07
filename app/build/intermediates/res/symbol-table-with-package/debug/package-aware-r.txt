@@ -384,9 +384,11 @@ color button_material_light
 color colorAccent
 color colorPrimary
 color colorPrimaryDark
+color color_background
 color color_black
 color color_check_icon
 color color_file_icon
+color color_font
 color color_gray
 color color_icon_folder
 color color_menu_icon
@@ -697,6 +699,8 @@ id barrier
 id beginning
 id blocking
 id bottom
+id btn_credible_users
+id btn_online_users
 id btn_set_begin_port
 id btn_set_local_device_name
 id btn_set_thread_number
@@ -863,6 +867,9 @@ layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_main
 layout activity_setting
+layout activity_sharded
+layout drawer_main_end
+layout drawer_main_start
 layout file_view_item_layout
 layout notification_action
 layout notification_action_tombstone
