@@ -2,7 +2,6 @@ package com.alvkeke.tools.filetp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -11,12 +10,11 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.InetAddress;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ShardedActivity extends AppCompatActivity {
 
@@ -24,10 +22,15 @@ public class ShardedActivity extends AppCompatActivity {
     static final String EXTRA_NAME_PATH = "filePath";
     static final String EXTRA_NAME_PATH_LIST = "filePathList";
 
+    private int mPort;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sharded);
+
+        SharedPreferences conf = getSharedPreferences(MainActivity.CONF_NAME, 0);
+        mPort = conf.getInt(MainActivity.CONF_KEY_BEGIN_PORT, 10000)+1;
 
         Intent iSend = getIntent();
         String action = iSend.getAction();
@@ -91,24 +94,24 @@ public class ShardedActivity extends AppCompatActivity {
         return filePath;
     }
 
-    boolean handleSingleSend(Intent iSend){
+    void handleSingleSend(Intent iSend){
 
         Uri uri = iSend.getParcelableExtra(Intent.EXTRA_STREAM);
 
         String filePath = handleUri(uri);
         if (filePath == null) {
-            return false;
+            return;
         }
 
         Log.e("debug", "found file: " + filePath);
 
         Intent iBack = new Intent(ShardedActivity.this, MainActivity.class);
-        iBack.putExtra(EXTRA_NAME_PATH, filePath);
+//        iBack.putExtra(EXTRA_NAME_PATH, filePath);
         startActivity(iBack);
-        return true;
+        new Thread(new SendSingleTask(filePath)).start();
     }
 
-    boolean handleMultiSend(Intent iSend){
+    void handleMultiSend(Intent iSend){
 
         ArrayList<Uri> uris = iSend.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
         ArrayList<String> files = new ArrayList<>();
@@ -122,14 +125,64 @@ public class ShardedActivity extends AppCompatActivity {
         }
 
         if (files.isEmpty()){
-            return false;
+            return;
         }
 
         Intent iBack = new Intent(ShardedActivity.this, MainActivity.class);
-        iBack.putStringArrayListExtra(EXTRA_NAME_PATH_LIST, files);
+//        iBack.putStringArrayListExtra(EXTRA_NAME_PATH_LIST, files);
         startActivity(iBack);
+        new Thread(new SendMultiTask(files)).start();
 
-        return true;
+    }
+
+    class SendSingleTask implements Runnable{
+
+        String mFileName;
+
+        SendSingleTask(String filename){
+            mFileName = filename;
+        }
+
+        @Override
+        public void run() {
+            try {
+
+                Socket socket = new Socket("127.0.0.1", mPort);
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF(mFileName);
+                dos.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    class SendMultiTask implements Runnable{
+
+        ArrayList<String> mFiles;
+
+        SendMultiTask(ArrayList<String> files){
+            mFiles = files;
+        }
+
+        @Override
+        public void run() {
+            try {
+
+                Socket socket = new Socket("127.0.0.1", mPort);
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                for (String s : mFiles) {
+                    dos.writeUTF(s);
+                }
+                dos.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
 }

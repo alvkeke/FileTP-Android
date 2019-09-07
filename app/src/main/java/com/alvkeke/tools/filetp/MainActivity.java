@@ -29,6 +29,8 @@ import com.alvkeke.tools.filetp.FileTransport.FileRecvHandler;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
 import com.alvkeke.tools.filetp.FileTransport.FileSender;
 import com.alvkeke.tools.filetp.FileTransport.FileSenderCallback;
+import com.alvkeke.tools.filetp.FileTransport.SharedCallback;
+import com.alvkeke.tools.filetp.FileTransport.SharedHandler;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -41,7 +43,7 @@ import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity
-        implements BroadcastCallback, FileRecvCallback, FileSenderCallback {
+        implements BroadcastCallback, FileRecvCallback, FileSenderCallback, SharedCallback {
 
     private HashMap<String, InetAddress> mOnlineUsers;
     private Set<String> mCredibleUsers;
@@ -106,32 +108,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onRestart() {
-//        Log.e("restart", "yes");
-
-        Intent intent = getIntent();
-        String fileName = intent.getStringExtra(ShardedActivity.EXTRA_NAME_PATH);
-
-        if (fileName != null) {
-
-            File file = new File(fileName);
-            if (file.exists()) {
-                addTask(file);
-            }
-        }
-
-        ArrayList<String> fileList = intent.getStringArrayListExtra(ShardedActivity.EXTRA_NAME_PATH_LIST);
-
-        if (fileList != null && !fileList.isEmpty()){
-            for (String s : fileList){
-                File file = new File(s);
-                if (file.exists()){
-                    addTask(file);
-                }
-            }
-        }
 
         checkWaitingTasks();
-
         super.onRestart();
     }
 
@@ -343,6 +321,7 @@ public class MainActivity extends AppCompatActivity
         bcHandler = new BroadcastHandler(mLocalDeviceName, this);
         if (!bcHandler.startListen(mBeginPort)){
             Log.e("error", "start broadcast handler failed");
+            finish();
             return;
         }
         bcHandler.broadcast();
@@ -353,9 +332,19 @@ public class MainActivity extends AppCompatActivity
         if (!frHandler.startListen(mBeginPort)){
             bcHandler.exit();
             Log.e("error", "start file receive handler failed");
+            finish();
             return;
         }
         Log.e("success", "start file receive handler");
+
+        SharedHandler sharedHandler = new SharedHandler(this);
+        if (!sharedHandler.startListen(mBeginPort + 1)){
+            sharedHandler.exit();
+            Log.e("error", "start file receive handler failed");
+            finish();
+            return;
+        }
+        Log.e("success", "start share listener");
 
     }
 
@@ -473,6 +462,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void sendFileFailed(File file) {
         removeTask(file);
+//        checkWaitingTasks();
     }
 
     @Override
@@ -491,5 +481,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void sendFileInProcess() {
 
+    }
+
+    @Override
+    public void gotShare(File file) {
+        addTask(file);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                checkWaitingTasks();
+            }
+        });
     }
 }
