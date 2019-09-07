@@ -1,7 +1,6 @@
-package com.alvkeke.tools.filetp.FileExplorer;
+package com.alvkeke.tools.filetp.ListAdapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,9 +27,9 @@ public class FileListAdapter extends BaseAdapter {
 
     private boolean showHideFile;
 
-    public FileListAdapter(Context context, ArrayList<File> dirList, ArrayList<File> fileList){
-        mDirList = dirList;
-        mFileList = fileList;
+    public FileListAdapter(Context context){
+        mDirList = new ArrayList<>();
+        mFileList = new ArrayList<>();
         mInflater = LayoutInflater.from(context);
 
         mSelectItems = new HashSet<>();

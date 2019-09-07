@@ -650,7 +650,9 @@ drawable ic_ok
 drawable ic_select_all
 drawable ic_send
 drawable ic_settings
+drawable ic_transporting
 drawable ic_unchecked
+drawable ic_waiting
 drawable notification_action_background
 drawable notification_bg
 drawable notification_bg_low
@@ -699,8 +701,6 @@ id barrier
 id beginning
 id blocking
 id bottom
-id btn_credible_users
-id btn_online_users
 id btn_set_begin_port
 id btn_set_local_device_name
 id btn_set_thread_number
@@ -725,6 +725,8 @@ id default_activity_button
 id dimensions
 id direct
 id disableHome
+id drawer_list_view_process
+id drawer_list_view_users
 id edit_query
 id end
 id expand_activities_button
@@ -775,9 +777,13 @@ id packed
 id parent
 id parentPanel
 id percent
+id process_icon
+id process_name
 id progress_circular
 id progress_horizontal
 id radio
+id refresh_process
+id refresh_users
 id right
 id right_icon
 id right_side
@@ -868,8 +874,9 @@ layout abc_tooltip
 layout activity_main
 layout activity_setting
 layout activity_sharded
-layout drawer_main_end
-layout drawer_main_start
+layout drawer_layout_main_left
+layout drawer_layout_main_right
+layout drawer_list_item_layout
 layout file_view_item_layout
 layout notification_action
 layout notification_action_tombstone

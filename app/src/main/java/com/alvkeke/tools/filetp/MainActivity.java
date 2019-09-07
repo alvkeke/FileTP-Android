@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
 import android.content.Context;
@@ -11,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,23 +21,20 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.alvkeke.tools.filetp.FileExplorer.FileListAdapter;
+import com.alvkeke.tools.filetp.ListAdapter.FileListAdapter;
 import com.alvkeke.tools.filetp.FileTransport.BroadcastCallback;
 import com.alvkeke.tools.filetp.FileTransport.BroadcastHandler;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvCallback;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvHandler;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
-import com.alvkeke.tools.filetp.FileTransport.FileSender;
 import com.alvkeke.tools.filetp.FileTransport.FileSenderCallback;
 import com.alvkeke.tools.filetp.FileTransport.SharedCallback;
 import com.alvkeke.tools.filetp.FileTransport.SharedHandler;
+import com.alvkeke.tools.filetp.ListAdapter.OnlineListAdapter;
+import com.alvkeke.tools.filetp.ListAdapter.ProcessListAdapter;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,26 +42,32 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity
         implements BroadcastCallback, FileRecvCallback, FileSenderCallback, SharedCallback {
 
-    private HashMap<String, InetAddress> mOnlineUsers;
     private Set<String> mCredibleUsers;
 
     private Menu mMenu;
 
     private ListView mFileList;
-    private FileListAdapter mAdapter;
+    private FileListAdapter mFileListAdapter;
+
+    private ListView mProcessList;
+    private ProcessListAdapter mProcessAdapter;
+
+    private ListView mOnlineList;
+    private OnlineListAdapter mOnlineAdapter;
+
+    SwipeRefreshLayout processRefresher;
+    SwipeRefreshLayout usersRefresher;
 
     private String mLocalDeviceName;
     private String mAttendDeviceName;
     private int mBeginPort;
     private String mSavePath;
     private boolean mIsShowHideFile;
+    private int mAllowThreadNumber;
 
     private BroadcastHandler bcHandler;
     private FileRecvHandler frHandler;
 
-    private Set<File> mWaitingTasks;
-    private Set<File> mRunningTasks;
-    private int mAllowThreadNumber;
 
     public final static String CONF_NAME = "configure";
     public final static String CONF_KEY_DEVICE_NAME = "deviceName";
@@ -81,25 +84,32 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mOnlineUsers = new HashMap<>();
-        mWaitingTasks = new HashSet<>();
-        mRunningTasks = new HashSet<>();
-
         restoreConfigure();
 
         mFileList = findViewById(R.id.lv_file_explorer);
         mFileList.setDivider(null);
-        ArrayList<File> dirList = new ArrayList<>();
-        ArrayList<File> fileList = new ArrayList<>();
-        mAdapter = new FileListAdapter(this, dirList, fileList);
-        mFileList.setAdapter(mAdapter);
+        mFileListAdapter = new FileListAdapter(this);
+        mFileList.setAdapter(mFileListAdapter);
+        mFileListAdapter.setShowHideFile(mIsShowHideFile);
 
-        mAdapter.setShowHideFile(mIsShowHideFile);
+        mOnlineList = findViewById(R.id.drawer_list_view_users);
+        mOnlineAdapter = new OnlineListAdapter(this);
+        mOnlineList.setAdapter(mOnlineAdapter);
+
+        mProcessList = findViewById(R.id.drawer_list_view_process);
+        mProcessAdapter = new ProcessListAdapter(this, this);
+        mProcessList.setAdapter(mProcessAdapter);
+
+        mProcessAdapter.setAllowThreadNumber(mAllowThreadNumber);
+        mOnlineAdapter.setCurrentTargetDevice(mAttendDeviceName);
 
         String action = getIntent().getAction();
         if (Intent.ACTION_MAIN.equals(action)) {
             startListenServer();
         }
+
+        processRefresher = findViewById(R.id.refresh_process);
+        usersRefresher = findViewById(R.id.refresh_users);
 
         setEventListener();
         askForPermission();
@@ -109,16 +119,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onRestart() {
 
-        checkWaitingTasks();
+        InetAddress address = mOnlineAdapter.getSelectAddress();
+        if (address != null){
+            mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+        }
         super.onRestart();
     }
 
     @Override
     public void onBackPressed() {
-        if (!mAdapter.moveToLastPath()) {
+        if (!mFileListAdapter.moveToLastPath()) {
             super.onBackPressed();
         }
-        mAdapter.notifyDataSetChanged();
+        mFileListAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -135,13 +148,13 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()){
             case R.id.menu_main_select_all:
 
-                if (mAdapter.isSelectAll()){
-                    mAdapter.unselectAll();
+                if (mFileListAdapter.isSelectAll()){
+                    mFileListAdapter.unselectAll();
                 } else {
-                    mAdapter.selectAll();
+                    mFileListAdapter.selectAll();
                 }
-                setFileMenuVisible(mAdapter.hasSelected());
-                mAdapter.notifyDataSetChanged();
+                setFileMenuVisible(mFileListAdapter.hasSelected());
+                mFileListAdapter.notifyDataSetChanged();
                 break;
             case R.id.menu_main_send:
 
@@ -154,13 +167,19 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(DialogInterface dialog, int which) {
 
                                 // 添加到任务队列
-                                for (File e : mAdapter.getSelectFiles()){
-                                    addTask(e);
+                                for (File e : mFileListAdapter.getSelectFiles()){
+                                    mProcessAdapter.addTask(e);
+                                    mProcessAdapter.notifyDataSetChanged();
                                 }
-                                checkWaitingTasks();
-                                setFileMenuVisible(false);
-                                mAdapter.unselectAll();
-                                mAdapter.notifyDataSetChanged();
+                                InetAddress address = mOnlineAdapter.getSelectAddress();
+                                if (address != null) {
+                                    mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                    mProcessAdapter.notifyDataSetChanged();
+
+                                    setFileMenuVisible(false);
+                                    mFileListAdapter.unselectAll();
+                                    mFileListAdapter.notifyDataSetChanged();
+                                }
                             }
                         });
                 builder.create().show();
@@ -173,35 +192,6 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    void addTask(File file){
-        mWaitingTasks.add(file);
-    }
-
-    void removeTask(File file){
-        mRunningTasks.remove(file);
-    }
-
-    void checkWaitingTasks(){
-
-        for (File file : mWaitingTasks){
-            if (mWaitingTasks.size() >= mAllowThreadNumber && mAllowThreadNumber>0){
-                break;
-            }
-
-            InetAddress address = mOnlineUsers.get(mAttendDeviceName);
-            if (address == null){
-                Toast.makeText(getApplicationContext(),
-                        "该用户已离线", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            FileSender sender = new FileSender(this, mLocalDeviceName, address, mBeginPort);
-            sender.send(file);
-            mRunningTasks.add(file);
-        }
-        mWaitingTasks.removeAll(mRunningTasks);
     }
 
     void setFileMenuVisible(boolean visible){
@@ -244,7 +234,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                File dir = mAdapter.getItem(position);
+                File dir = mFileListAdapter.getItem(position);
 
                 if (!dir.exists()) {
                     Log.e("error", "directory is not exist");
@@ -253,12 +243,12 @@ public class MainActivity extends AppCompatActivity
 
                 if (dir.isDirectory()){
                     Log.e("debug", "change directory");
-                    mAdapter.setPath(dir);
-                    mAdapter.notifyDataSetChanged();
+                    mFileListAdapter.setPath(dir);
+                    mFileListAdapter.notifyDataSetChanged();
                 } else {
-                    mAdapter.toggleSelectState(position);
-                    setFileMenuVisible(mAdapter.hasSelected());
-                    mAdapter.notifyDataSetChanged();
+                    mFileListAdapter.toggleSelectState(position);
+                    setFileMenuVisible(mFileListAdapter.hasSelected());
+                    mFileListAdapter.notifyDataSetChanged();
                 }
 
             }
@@ -270,7 +260,7 @@ public class MainActivity extends AppCompatActivity
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Log.e("long click", "position: " + position);
-                fileToSend = mAdapter.getItem(position);
+                fileToSend = mFileListAdapter.getItem(position);
                 Log.e("debug", "send file: "+ fileToSend.getAbsolutePath());
 
                 if (!fileToSend.exists()) return true;
@@ -288,10 +278,13 @@ public class MainActivity extends AppCompatActivity
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     for (File file : fileToSend.listFiles()) {
-                                        addTask(file);
+                                        mProcessAdapter.addTask(file);
+                                        mProcessAdapter.notifyDataSetChanged();
                                     }
 
-                                    checkWaitingTasks();
+                                    InetAddress address = mOnlineAdapter.getSelectAddress();
+                                    mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                    mProcessAdapter.notifyDataSetChanged();
                                 }
                             });
                     builder.create().show();
@@ -305,8 +298,14 @@ public class MainActivity extends AppCompatActivity
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    addTask(fileToSend);
-                                    checkWaitingTasks();
+                                    mProcessAdapter.addTask(fileToSend);
+                                    mProcessAdapter.notifyDataSetChanged();
+
+                                    InetAddress address = mOnlineAdapter.getSelectAddress();
+                                    if (address != null) {
+                                        mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                        mProcessAdapter.notifyDataSetChanged();
+                                    }
                                 }
                             });
                     builder.create().show();
@@ -314,6 +313,27 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
         });
+
+        processRefresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                InetAddress address = mOnlineAdapter.getSelectAddress();
+                if (address != null) {
+                    mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                    mProcessAdapter.notifyDataSetChanged();
+                }
+                processRefresher.setRefreshing(false);
+            }
+        });
+
+        usersRefresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                bcHandler.broadcast();
+                usersRefresher.setRefreshing(false);
+            }
+        });
+
     }
 
     void startListenServer(){
@@ -352,8 +372,8 @@ public class MainActivity extends AppCompatActivity
 
         File sdcard = new File(System.getenv("EXTERNAL_STORAGE"));
 
-        mAdapter.setPath(sdcard);
-        mAdapter.notifyDataSetChanged();
+        mFileListAdapter.setPath(sdcard);
+        mFileListAdapter.notifyDataSetChanged();
     }
 
     private static String[] PERMISSIONS_STORAGE = {
@@ -390,13 +410,26 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void gotClientOnline(String deviceName, InetAddress address) {
 
-        mOnlineUsers.put(deviceName, address);
+        mOnlineAdapter.addUser(deviceName, address);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mOnlineAdapter.notifyDataSetChanged();
+//                usersRefresher.setRefreshing(false);
+            }
+        });
         Log.e("broadcast", deviceName);
     }
 
     @Override
     public void gotClientOffline(String deviceName) {
-        mOnlineUsers.remove(deviceName);
+        mOnlineAdapter.removeUser(deviceName);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mOnlineAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -461,21 +494,36 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void sendFileFailed(File file) {
-        removeTask(file);
-//        checkWaitingTasks();
+        mProcessAdapter.removeTask(file);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mProcessAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
     public void sendFileSuccess(final File file) {
-        removeTask(file);
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Toast.makeText(getApplicationContext(),
-//                        file.getName() + " 发送成功", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-        checkWaitingTasks();
+        mProcessAdapter.removeTask(file);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mProcessAdapter.notifyDataSetChanged();
+            }
+        });
+
+        InetAddress address = mOnlineAdapter.getSelectAddress();
+        if (address != null) {
+            mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+            mProcessAdapter.notifyDataSetChanged();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mProcessAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     @Override
@@ -485,11 +533,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void gotShare(File file) {
-        addTask(file);
+        mProcessAdapter.addTask(file);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                checkWaitingTasks();
+                mProcessAdapter.notifyDataSetChanged();
+                InetAddress address = mOnlineAdapter.getSelectAddress();
+                if (address != null) {
+                    mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                    mProcessAdapter.notifyDataSetChanged();
+                }
             }
         });
     }

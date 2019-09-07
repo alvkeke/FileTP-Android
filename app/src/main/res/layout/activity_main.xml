@@ -21,9 +21,9 @@
     </RelativeLayout>
 
     <include
-        layout="@layout/drawer_main_start"/>
+        layout="@layout/drawer_layout_main_left"/>
 
     <include
-        layout="@layout/drawer_main_end"/>
+        layout="@layout/drawer_layout_main_right"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>
