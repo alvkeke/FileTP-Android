@@ -30,8 +30,8 @@ import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
 import com.alvkeke.tools.filetp.FileTransport.FileSenderCallback;
 import com.alvkeke.tools.filetp.FileTransport.SharedCallback;
 import com.alvkeke.tools.filetp.FileTransport.SharedHandler;
-import com.alvkeke.tools.filetp.ListAdapter.OnlineListAdapter;
-import com.alvkeke.tools.filetp.ListAdapter.ProcessListAdapter;
+import com.alvkeke.tools.filetp.ListAdapter.UserListAdapter;
+import com.alvkeke.tools.filetp.ListAdapter.TaskListAdapter;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -49,13 +49,13 @@ public class MainActivity extends AppCompatActivity
     private ListView mFileList;
     private FileListAdapter mFileListAdapter;
 
-    private ListView mProcessList;
-    private ProcessListAdapter mProcessAdapter;
+    private ListView mTaskList;
+    private TaskListAdapter mTaskAdapter;
 
-    private ListView mOnlineList;
-    private OnlineListAdapter mOnlineAdapter;
+    private ListView mUserList;
+    private UserListAdapter mUserAdapter;
 
-    SwipeRefreshLayout processRefresher;
+    SwipeRefreshLayout tasksRefresher;
     SwipeRefreshLayout usersRefresher;
 
     private String mLocalDeviceName;
@@ -84,120 +84,52 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getStoragePermission();
+
+    }
+
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    private static int STORAGE_PERMISSION_REQUEST_CODE = 1;
+
+    boolean checkPermission(){
+        return (ActivityCompat.checkSelfPermission(this, Manifest.permission_group.STORAGE) == PackageManager.PERMISSION_DENIED);
+    }
+
+    void getStoragePermission(){
+        if (checkPermission())
+        {
+            ActivityCompat.requestPermissions(this,
+                    PERMISSIONS_STORAGE, STORAGE_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == STORAGE_PERMISSION_REQUEST_CODE){
+            for (int i : grantResults){
+                if (i == PackageManager.PERMISSION_DENIED){
+                    finish();
+                }
+            }
+            afterGetPermission();
+        }
+    }
+
+    void afterGetPermission(){
+
         restoreConfigure();
 
-        mFileList = findViewById(R.id.lv_file_explorer);
-        mFileList.setDivider(null);
-        mFileListAdapter = new FileListAdapter(this);
-        mFileList.setAdapter(mFileListAdapter);
-        mFileListAdapter.setShowHideFile(mIsShowHideFile);
+        startServerListener();
 
-        mOnlineList = findViewById(R.id.drawer_list_view_users);
-        mOnlineAdapter = new OnlineListAdapter(this);
-        mOnlineList.setAdapter(mOnlineAdapter);
+        setUserInterfaceViews();
 
-        mProcessList = findViewById(R.id.drawer_list_view_process);
-        mProcessAdapter = new ProcessListAdapter(this, this);
-        mProcessList.setAdapter(mProcessAdapter);
+//        setEventListener();
 
-//        mProcessAdapter.setAllowThreadNumber(mAllowThreadNumber);
-        mProcessAdapter.setAllowThreadNumber(3);
-        mOnlineAdapter.setCurrentTargetDevice(mAttendDeviceName);
-
-        String action = getIntent().getAction();
-        if (Intent.ACTION_MAIN.equals(action)) {
-            startListenServer();
-        }
-
-        processRefresher = findViewById(R.id.refresh_process);
-        usersRefresher = findViewById(R.id.refresh_users);
-
-        setEventListener();
-        askForPermission();
-
-    }
-
-    @Override
-    protected void onRestart() {
-
-        InetAddress address = mOnlineAdapter.getSelectAddress();
-        if (address != null){
-            mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
-        }
-        super.onRestart();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!mFileListAdapter.moveToLastPath()) {
-            super.onBackPressed();
-        }
-        mFileListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_activity_main, menu);
-        menu.findItem(R.id.menu_main_select_all).setVisible(false);
-        menu.findItem(R.id.menu_main_send).setVisible(false);
-        mMenu = menu;
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.menu_main_select_all:
-
-                if (mFileListAdapter.isSelectAll()){
-                    mFileListAdapter.unselectAll();
-                } else {
-                    mFileListAdapter.selectAll();
-                }
-                setFileMenuVisible(mFileListAdapter.hasSelected());
-                mFileListAdapter.notifyDataSetChanged();
-                break;
-            case R.id.menu_main_send:
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("发送文件")
-                        .setMessage("确定要发送选中的所有文件吗?")
-                        .setNegativeButton("取消", null)
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                // 添加到任务队列
-                                for (File e : mFileListAdapter.getSelectFiles()){
-                                    mProcessAdapter.addTask(e);
-//                                    mProcessAdapter.notifyDataSetChanged();
-                                }
-                                InetAddress address = mOnlineAdapter.getSelectAddress();
-                                if (address != null) {
-                                    mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
-//                                    mProcessAdapter.notifyDataSetChanged();
-
-                                }
-                                setFileMenuVisible(false);
-                                mFileListAdapter.unselectAll();
-                                mFileListAdapter.notifyDataSetChanged();
-                            }
-                        });
-                builder.create().show();
-                break;
-            case R.id.menu_main_setting:
-
-                Intent intentSetting = new Intent(MainActivity.this, SettingActivity.class);
-                // todo: change the request code
-                startActivityForResult(intentSetting, 1);
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    void setFileMenuVisible(boolean visible){
-        mMenu.findItem(R.id.menu_main_send).setVisible(visible);
-        mMenu.findItem(R.id.menu_main_select_all).setVisible(visible);
+        showSdcardRootFiles();
     }
 
     void restoreConfigure(){
@@ -227,6 +159,65 @@ public class MainActivity extends AppCompatActivity
             editor.putStringSet(CONF_KEY_CREDIBLE_USERS, mCredibleUsers);
         }
         editor.apply();
+
+    }
+
+    void startServerListener(){
+
+        bcHandler = new BroadcastHandler(mLocalDeviceName, this);
+        if (!bcHandler.startListen(mBeginPort)){
+            Log.e("error", "start broadcast handler failed");
+            finish();
+            return;
+        }
+        bcHandler.broadcast();
+        bcHandler.requestBroadcast();
+        Log.e("success", "start broadcast handler");
+
+        frHandler = new FileRecvHandler(this, mSavePath);
+        if (!frHandler.startListen(mBeginPort)){
+            bcHandler.exit();
+            Log.e("error", "start file receive handler failed");
+            finish();
+            return;
+        }
+        Log.e("success", "start file receive handler");
+
+        SharedHandler sharedHandler = new SharedHandler(this);
+        if (!sharedHandler.startListen(mBeginPort + 1)){
+            sharedHandler.exit();
+            Log.e("error", "start file receive handler failed");
+            finish();
+            return;
+        }
+        Log.e("success", "start share listener");
+
+    }
+
+    void setUserInterfaceViews(){
+
+        mFileList = findViewById(R.id.lv_file_explorer);
+        mUserList = findViewById(R.id.drawer_list_view_users);
+        mTaskList = findViewById(R.id.drawer_list_view_tasks);
+        tasksRefresher = findViewById(R.id.refresh_tasks);
+        usersRefresher = findViewById(R.id.refresh_users);
+
+        mFileList.setDivider(null);
+
+        mFileListAdapter = new FileListAdapter(this);
+        mUserAdapter = new UserListAdapter(this);
+        mTaskAdapter = new TaskListAdapter(this, this);
+
+        mFileList.setAdapter(mFileListAdapter);
+        mUserList.setAdapter(mUserAdapter);
+        mTaskList.setAdapter(mTaskAdapter);
+
+        mFileListAdapter.setShowHideFile(mIsShowHideFile);
+        mUserAdapter.setCurrentTargetDevice(mAttendDeviceName);
+//        mTaskAdapter.setAllowThreadNumber(mAllowThreadNumber);
+        mTaskAdapter.setAllowThreadNumber(1);
+
+        setEventListener();
 
     }
 
@@ -279,15 +270,15 @@ public class MainActivity extends AppCompatActivity
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     for (File file : fileToSend.listFiles()) {
-                                        mProcessAdapter.addTask(file);
-//                                        mProcessAdapter.notifyDataSetChanged();
+                                        mTaskAdapter.addTask(file);
+//                                        mTaskAdapter.notifyDataSetChanged();
                                     }
 
-                                    InetAddress address = mOnlineAdapter.getSelectAddress();
+                                    InetAddress address = mUserAdapter.getSelectAddress();
                                     if (address != null) {
-                                        mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                        mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
                                     }
-                                    mProcessAdapter.notifyDataSetChanged();
+                                    mTaskAdapter.notifyDataSetChanged();
                                 }
                             });
                     builder.create().show();
@@ -301,14 +292,14 @@ public class MainActivity extends AppCompatActivity
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    mProcessAdapter.addTask(fileToSend);
-//                                    mProcessAdapter.notifyDataSetChanged();
+                                    mTaskAdapter.addTask(fileToSend);
+//                                    mTaskAdapter.notifyDataSetChanged();
 
-                                    InetAddress address = mOnlineAdapter.getSelectAddress();
+                                    InetAddress address = mUserAdapter.getSelectAddress();
                                     if (address != null) {
-                                        mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                        mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
                                     }
-                                    mProcessAdapter.notifyDataSetChanged();
+                                    mTaskAdapter.notifyDataSetChanged();
                                 }
                             });
                     builder.create().show();
@@ -317,15 +308,22 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        processRefresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        tasksRefresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                InetAddress address = mOnlineAdapter.getSelectAddress();
+
+                mTaskAdapter.clearFinishedTask();
+                mTaskAdapter.notifyDataSetChanged();
+
+                InetAddress address = mUserAdapter.getSelectAddress();
                 if (address != null) {
-                    mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                    mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "请检查目标设备是否在线", Toast.LENGTH_SHORT).show();
                 }
-                mProcessAdapter.notifyDataSetChanged();
-                processRefresher.setRefreshing(false);
+                mTaskAdapter.notifyDataSetChanged();
+                tasksRefresher.setRefreshing(false);
             }
         });
 
@@ -333,41 +331,10 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onRefresh() {
                 bcHandler.broadcast();
+                bcHandler.requestBroadcast();
                 usersRefresher.setRefreshing(false);
             }
         });
-
-    }
-
-    void startListenServer(){
-
-        bcHandler = new BroadcastHandler(mLocalDeviceName, this);
-        if (!bcHandler.startListen(mBeginPort)){
-            Log.e("error", "start broadcast handler failed");
-            finish();
-            return;
-        }
-        bcHandler.broadcast();
-        bcHandler.requestBroadcast();
-        Log.e("success", "start broadcast handler");
-
-        frHandler = new FileRecvHandler(this, mSavePath);
-        if (!frHandler.startListen(mBeginPort)){
-            bcHandler.exit();
-            Log.e("error", "start file receive handler failed");
-            finish();
-            return;
-        }
-        Log.e("success", "start file receive handler");
-
-        SharedHandler sharedHandler = new SharedHandler(this);
-        if (!sharedHandler.startListen(mBeginPort + 1)){
-            sharedHandler.exit();
-            Log.e("error", "start file receive handler failed");
-            finish();
-            return;
-        }
-        Log.e("success", "start share listener");
 
     }
 
@@ -379,45 +346,97 @@ public class MainActivity extends AppCompatActivity
         mFileListAdapter.notifyDataSetChanged();
     }
 
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    @Override
+    protected void onRestart() {
 
-    private static int STORAGE_PERMISSION_REQUEST_CODE = 1;
-
-    boolean checkPermission(){
-        return (ActivityCompat.checkSelfPermission(this, Manifest.permission_group.STORAGE) == PackageManager.PERMISSION_DENIED);
-    }
-
-    void askForPermission(){
-        if (checkPermission())
-        {
-            ActivityCompat.requestPermissions(this,
-                    PERMISSIONS_STORAGE, STORAGE_PERMISSION_REQUEST_CODE);
+        InetAddress address = mUserAdapter.getSelectAddress();
+        if (address != null){
+            mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
         }
+        super.onRestart();
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == STORAGE_PERMISSION_REQUEST_CODE){
-            for (int i : grantResults){
-                if (i == PackageManager.PERMISSION_DENIED){
-                    finish();
-                }
-            }
-            showSdcardRootFiles();
+    public void onBackPressed() {
+        if (!mFileListAdapter.moveToLastPath()) {
+            super.onBackPressed();
         }
+        mFileListAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+        menu.findItem(R.id.menu_main_select_all).setVisible(false);
+        menu.findItem(R.id.menu_main_send).setVisible(false);
+        mMenu = menu;
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_main_select_all:
+
+                if (mFileListAdapter.isSelectAll()){
+                    mFileListAdapter.unselectAll();
+                } else {
+                    mFileListAdapter.selectAll();
+                }
+                setFileMenuVisible(mFileListAdapter.hasSelected());
+                mFileListAdapter.notifyDataSetChanged();
+                break;
+            case R.id.menu_main_send:
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("发送文件")
+                        .setMessage("确定要发送选中的所有文件吗?")
+                        .setNegativeButton("取消", null)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                // 添加到任务队列
+                                for (File e : mFileListAdapter.getSelectFiles()){
+                                    mTaskAdapter.addTask(e);
+                                }
+                                InetAddress address = mUserAdapter.getSelectAddress();
+                                if (address != null) {
+                                    mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+
+                                }
+                                setFileMenuVisible(false);
+                                mFileListAdapter.unselectAll();
+                                mFileListAdapter.notifyDataSetChanged();
+                                mTaskAdapter.notifyDataSetChanged();
+                            }
+                        });
+                builder.create().show();
+                break;
+            case R.id.menu_main_setting:
+
+                Intent intentSetting = new Intent(MainActivity.this, SettingActivity.class);
+                // todo: change the request code
+                startActivityForResult(intentSetting, 1);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    void setFileMenuVisible(boolean visible){
+        mMenu.findItem(R.id.menu_main_send).setVisible(visible);
+        mMenu.findItem(R.id.menu_main_select_all).setVisible(visible);
+    }
+
 
     @Override
     public void gotClientOnline(String deviceName, InetAddress address) {
 
-        mOnlineAdapter.addUser(deviceName, address);
+        mUserAdapter.addUser(deviceName, address);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mOnlineAdapter.notifyDataSetChanged();
+                mUserAdapter.notifyDataSetChanged();
 //                usersRefresher.setRefreshing(false);
             }
         });
@@ -426,11 +445,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void gotClientOffline(String deviceName) {
-        mOnlineAdapter.removeUser(deviceName);
+        mUserAdapter.removeUser(deviceName);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mOnlineAdapter.notifyDataSetChanged();
+                mUserAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -497,35 +516,31 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void sendFileFailed(File file) {
-        mProcessAdapter.removeTask(file);
+        mTaskAdapter.setTaskError(file);
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mProcessAdapter.notifyDataSetChanged();
+                mTaskAdapter.notifyDataSetChanged();
             }
         });
     }
 
     @Override
     public void sendFileSuccess(File file) {
-        mProcessAdapter.removeTask(file);
+        mTaskAdapter.finishTask(file);
+
+        InetAddress address = mUserAdapter.getSelectAddress();
+        if (address != null) {
+            mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+        }
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mProcessAdapter.notifyDataSetChanged();
+                mTaskAdapter.notifyDataSetChanged();
             }
         });
-
-        InetAddress address = mOnlineAdapter.getSelectAddress();
-        if (address != null) {
-            mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mProcessAdapter.notifyDataSetChanged();
-                }
-            });
-        }
     }
 
     @Override
@@ -535,16 +550,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void gotShare(File file) {
-        mProcessAdapter.addTask(file);
+        mTaskAdapter.addTask(file);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mProcessAdapter.notifyDataSetChanged();
-                InetAddress address = mOnlineAdapter.getSelectAddress();
+                mTaskAdapter.notifyDataSetChanged();
+                InetAddress address = mUserAdapter.getSelectAddress();
                 if (address != null) {
-                    mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
-                    mProcessAdapter.notifyDataSetChanged();
+                    mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
                 }
+                mTaskAdapter.notifyDataSetChanged();
             }
         });
     }

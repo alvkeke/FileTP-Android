@@ -13,14 +13,14 @@ import com.alvkeke.tools.filetp.R;
 import java.net.InetAddress;
 import java.util.HashMap;
 
-public class OnlineListAdapter extends BaseAdapter {
+public class UserListAdapter extends BaseAdapter {
 
     private HashMap<String, InetAddress> mOnlineUsers;
     private LayoutInflater mInflater;
 
     private String currentTargetDevice;
 
-    public OnlineListAdapter(Context context){
+    public UserListAdapter(Context context){
         mOnlineUsers = new HashMap<>();
         mInflater = LayoutInflater.from(context);
     }
@@ -84,8 +84,8 @@ public class OnlineListAdapter extends BaseAdapter {
             holder = new ViewHolder();
 
             convertView = mInflater.inflate(R.layout.drawer_list_item_layout, null);
-            holder.icon = convertView.findViewById(R.id.process_icon);
-            holder.name = convertView.findViewById(R.id.process_name);
+            holder.icon = convertView.findViewById(R.id.tasks_icon);
+            holder.name = convertView.findViewById(R.id.tasks_name);
 
             convertView.setTag(holder);
         } else {

@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/process_icon"
+        android:id="@+id/tasks_icon"
         android:layout_marginStart="@dimen/distance_margin_file_icon"
         android:layout_marginTop="@dimen/distance_margin_file_icon"
         android:layout_marginBottom="@dimen/distance_margin_file_icon"
@@ -16,7 +16,7 @@
         android:layout_height="36dp"/>
 
     <TextView
-        android:id="@+id/process_name"
+        android:id="@+id/tasks_name"
         android:text="@string/app_name"
         android:textSize="16sp"
         android:textColor="@color/color_font"
