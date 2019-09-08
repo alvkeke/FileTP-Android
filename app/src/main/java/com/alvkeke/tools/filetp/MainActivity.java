@@ -100,7 +100,8 @@ public class MainActivity extends AppCompatActivity
         mProcessAdapter = new ProcessListAdapter(this, this);
         mProcessList.setAdapter(mProcessAdapter);
 
-        mProcessAdapter.setAllowThreadNumber(mAllowThreadNumber);
+//        mProcessAdapter.setAllowThreadNumber(mAllowThreadNumber);
+        mProcessAdapter.setAllowThreadNumber(3);
         mOnlineAdapter.setCurrentTargetDevice(mAttendDeviceName);
 
         String action = getIntent().getAction();
@@ -169,17 +170,17 @@ public class MainActivity extends AppCompatActivity
                                 // 添加到任务队列
                                 for (File e : mFileListAdapter.getSelectFiles()){
                                     mProcessAdapter.addTask(e);
-                                    mProcessAdapter.notifyDataSetChanged();
+//                                    mProcessAdapter.notifyDataSetChanged();
                                 }
                                 InetAddress address = mOnlineAdapter.getSelectAddress();
                                 if (address != null) {
                                     mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
-                                    mProcessAdapter.notifyDataSetChanged();
+//                                    mProcessAdapter.notifyDataSetChanged();
 
-                                    setFileMenuVisible(false);
-                                    mFileListAdapter.unselectAll();
-                                    mFileListAdapter.notifyDataSetChanged();
                                 }
+                                setFileMenuVisible(false);
+                                mFileListAdapter.unselectAll();
+                                mFileListAdapter.notifyDataSetChanged();
                             }
                         });
                 builder.create().show();
@@ -279,11 +280,13 @@ public class MainActivity extends AppCompatActivity
 
                                     for (File file : fileToSend.listFiles()) {
                                         mProcessAdapter.addTask(file);
-                                        mProcessAdapter.notifyDataSetChanged();
+//                                        mProcessAdapter.notifyDataSetChanged();
                                     }
 
                                     InetAddress address = mOnlineAdapter.getSelectAddress();
-                                    mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                    if (address != null) {
+                                        mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                    }
                                     mProcessAdapter.notifyDataSetChanged();
                                 }
                             });
@@ -299,13 +302,13 @@ public class MainActivity extends AppCompatActivity
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     mProcessAdapter.addTask(fileToSend);
-                                    mProcessAdapter.notifyDataSetChanged();
+//                                    mProcessAdapter.notifyDataSetChanged();
 
                                     InetAddress address = mOnlineAdapter.getSelectAddress();
                                     if (address != null) {
                                         mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
-                                        mProcessAdapter.notifyDataSetChanged();
                                     }
+                                    mProcessAdapter.notifyDataSetChanged();
                                 }
                             });
                     builder.create().show();
@@ -320,8 +323,8 @@ public class MainActivity extends AppCompatActivity
                 InetAddress address = mOnlineAdapter.getSelectAddress();
                 if (address != null) {
                     mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
-                    mProcessAdapter.notifyDataSetChanged();
                 }
+                mProcessAdapter.notifyDataSetChanged();
                 processRefresher.setRefreshing(false);
             }
         });
@@ -504,7 +507,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void sendFileSuccess(final File file) {
+    public void sendFileSuccess(File file) {
         mProcessAdapter.removeTask(file);
         runOnUiThread(new Runnable() {
             @Override
@@ -516,7 +519,6 @@ public class MainActivity extends AppCompatActivity
         InetAddress address = mOnlineAdapter.getSelectAddress();
         if (address != null) {
             mProcessAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
-            mProcessAdapter.notifyDataSetChanged();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

@@ -51,16 +51,24 @@ public class ProcessListAdapter extends BaseAdapter implements FileSenderCallbac
 
     public void checkWaitingTasks(InetAddress targetAddress, int port, String localDeviceName){
 
+        ArrayList<File> tmp = new ArrayList<>();
         for (File file : mWaitingTasks){
-            if (mWaitingTasks.size() >= mAllowThreadNumber && mAllowThreadNumber>0){
+            if (mRunningTasks.size() >= mAllowThreadNumber && mAllowThreadNumber>0){
                 break;
             }
 
-            FileSender sender = new FileSender(this, localDeviceName, targetAddress, port);
-            sender.send(file);
-            mRunningTasks.add(file);
+//            FileSender sender = new FileSender(this, localDeviceName, targetAddress, port);
+//            sender.send(file);
+//            mRunningTasks.add(file);
+            tmp.add(file);
         }
-        mWaitingTasks.removeAll(mRunningTasks);
+
+        mWaitingTasks.removeAll(tmp);
+        for (File e : tmp){
+            FileSender sender = new FileSender(this, localDeviceName, targetAddress, port);
+            mRunningTasks.add(e);
+            sender.send(e);
+        }
     }
 
     @Override
@@ -73,7 +81,7 @@ public class ProcessListAdapter extends BaseAdapter implements FileSenderCallbac
         if (position<mRunningTasks.size())
             return mRunningTasks.get(position);
         else
-            return mWaitingTasks.get(position-mWaitingTasks.size());
+            return mWaitingTasks.get(position-mRunningTasks.size());
     }
 
     @Override
