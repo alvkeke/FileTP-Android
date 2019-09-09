@@ -897,6 +897,7 @@ layout task_item_layout
 layout user_item_layout
 menu menu_activity_main
 menu menu_activity_setting
+mipmap app_icon
 mipmap ic_launcher
 mipmap ic_launcher_round
 string abc_action_bar_home_description

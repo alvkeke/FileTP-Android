@@ -896,8 +896,9 @@ int layout task_item_layout 0x7f09002c
 int layout user_item_layout 0x7f09002d
 int menu menu_activity_main 0x7f0a0000
 int menu menu_activity_setting 0x7f0a0001
-int mipmap ic_launcher 0x7f0b0000
-int mipmap ic_launcher_round 0x7f0b0001
+int mipmap app_icon 0x7f0b0000
+int mipmap ic_launcher 0x7f0b0001
+int mipmap ic_launcher_round 0x7f0b0002
 int string abc_action_bar_home_description 0x7f0c0000
 int string abc_action_bar_up_description 0x7f0c0001
 int string abc_action_menu_overflow_description 0x7f0c0002

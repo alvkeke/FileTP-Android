@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity
     private SwipeRefreshLayout usersRefresher;
 
     private String mLocalDeviceName;
-    private String mAttendDeviceName;
+//    private String mAttendDeviceName;
     private int mBeginPort;
     private String mSavePath;
     private boolean mIsShowHideFile;
@@ -82,13 +82,12 @@ public class MainActivity extends AppCompatActivity
 
     public final static String CONF_NAME = "configure";
     public final static String CONF_KEY_DEVICE_NAME = "deviceName";
-    public final static String CONF_KEY_ATTEND_DEVICE = "attendDevice";
+//    public final static String CONF_KEY_ATTEND_DEVICE = "attendDevice";
     public final static String CONF_KEY_BEGIN_PORT = "beginPort";
     public final static String CONF_KEY_SAVE_PATH = "savePath";
     public final static String CONF_KEY_CREDIBLE_USERS = "credibleUsers";
     public final static String CONF_KEY_SHOW_HIDE_FILE = "showHideFile";
     public final static String CONF_KEY_ALLOW_THREAD_NUMBER = "allowThreadNumber";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity
 
         mCredibleUsers = conf.getStringSet(CONF_KEY_CREDIBLE_USERS, new HashSet<String>());
         mLocalDeviceName = conf.getString(CONF_KEY_DEVICE_NAME, "phone");
-        mAttendDeviceName = conf.getString(CONF_KEY_ATTEND_DEVICE, "alv-manjaro");
+//        mAttendDeviceName = conf.getString(CONF_KEY_ATTEND_DEVICE, "alv-manjaro");
         mBeginPort = conf.getInt(CONF_KEY_BEGIN_PORT, 10000);
         mSavePath = conf.getString(CONF_KEY_SAVE_PATH, "");
         mIsShowHideFile = conf.getBoolean(CONF_KEY_SHOW_HIDE_FILE, true);
@@ -228,9 +227,8 @@ public class MainActivity extends AppCompatActivity
         btnSwitchAdapter.setText("发送");
 
         mFileListAdapter.setShowHideFile(mIsShowHideFile);
-        mUserAdapter.setCurrentTargetDevice(mAttendDeviceName);
-//        mSendTaskAdapter.setAllowThreadNumber(mAllowThreadNumber);
-        mSendTaskAdapter.setAllowThreadNumber(1);
+        mUserAdapter.setCurrentSelectPos(0);
+        mSendTaskAdapter.setAllowThreadNumber(mAllowThreadNumber);
 
         setEventListener();
 
@@ -305,7 +303,7 @@ public class MainActivity extends AppCompatActivity
                                         if (file.isDirectory()) continue;
                                         SendTaskItem task = new SendTaskItem(file.getAbsolutePath());
                                         mSendTaskAdapter.addTask(task);
-//                                        mSendTaskAdapter.notifyDataSetChanged();
+                                        mSendTaskAdapter.notifyDataSetChanged();
                                     }
 
                                     InetAddress address = mUserAdapter.getSelectAddress();
@@ -343,22 +341,40 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        mUserList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                // todo : 选择发送用户
+                mUserAdapter.setCurrentSelectPos(i);
+                mUserAdapter.notifyDataSetChanged();
+            }
+        });
+
+        mTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                // todo ： 弹出选项
+            }
+        });
+
         tasksRefresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
-                mSendTaskAdapter.clearFinishedTask();
-                mSendTaskAdapter.notifyDataSetChanged();
+                if (mTaskList.getAdapter().equals(mSendTaskAdapter)) {
+                    mSendTaskAdapter.clearFinishedTask();
+                    mSendTaskAdapter.notifyDataSetChanged();
 
-                InetAddress address = mUserAdapter.getSelectAddress();
-                if (address != null) {
-                    mSendTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "请检查目标设备是否在线", Toast.LENGTH_SHORT).show();
+                    InetAddress address = mUserAdapter.getSelectAddress();
+                    if (address != null) {
+                        mSendTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                    } else {
+                        Toast.makeText(getApplicationContext(),
+                                "请检查目标设备是否在线", Toast.LENGTH_SHORT).show();
+                    }
+                    mSendTaskAdapter.notifyDataSetChanged();
+                    tasksRefresher.setRefreshing(false);
                 }
-                mSendTaskAdapter.notifyDataSetChanged();
-                tasksRefresher.setRefreshing(false);
             }
         });
 

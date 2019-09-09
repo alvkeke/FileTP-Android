@@ -18,6 +18,7 @@
 
             <Button
                 android:id="@+id/btn_set_local_device_name"
+                android:textAllCaps="false"
                 android:layout_marginTop="@dimen/distance_setting_toTop"
                 android:layout_marginStart="@dimen/distance_setting_toSide"
                 android:layout_marginEnd="@dimen/distance_setting_toSide"

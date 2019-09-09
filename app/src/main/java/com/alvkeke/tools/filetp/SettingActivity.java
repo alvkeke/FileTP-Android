@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,7 +68,7 @@ public class SettingActivity extends AppCompatActivity {
 
         mCredibleUsers = conf.getStringSet(CONF_KEY_CREDIBLE_USERS, new HashSet<String>());
         mLocalDeviceName = conf.getString(CONF_KEY_DEVICE_NAME, "phone");
-        mAttendDeviceName = conf.getString(CONF_KEY_ATTEND_DEVICE, "alv-manjaro");
+//        mAttendDeviceName = conf.getString(CONF_KEY_ATTEND_DEVICE, "alv-manjaro");
         mBeginPort = conf.getInt(CONF_KEY_BEGIN_PORT, 10000);
         mSavePath = conf.getString(CONF_KEY_SAVE_PATH, "");
         mIsShowHideFile = conf.getBoolean(CONF_KEY_SHOW_HIDE_FILE, true);
@@ -178,7 +180,7 @@ public class SettingActivity extends AppCompatActivity {
                             try {
                                 mAllowThreadNumber = Integer.parseInt(et.getText().toString());
                                 String title = "进程数：" + mAllowThreadNumber;
-                                btnSetBeginPort.setText(title);
+                                btnSetThreadNumber.setText(title);
                             }catch (NumberFormatException e){
                                 e.printStackTrace();
                             }
@@ -236,9 +238,24 @@ public class SettingActivity extends AppCompatActivity {
 
                 SharedPreferences.Editor editor = conf.edit();
 
+//                Log.e("setting", mLocalDeviceName);
+//                Log.e("setting", mAttendDeviceName);
+//                Log.e("setting", String.valueOf(mBeginPort));
+//                Log.e("setting", mSavePath);
+//                Log.e("setting", String.valueOf(mIsShowHideFile));
+//                Log.e("setting", String.valueOf(mAllowThreadNumber));
                 // todo: 保存设置
+                mIsShowHideFile = switchHideFile.isChecked();
+
+                editor.putBoolean(CONF_KEY_SHOW_HIDE_FILE, mIsShowHideFile);
+                editor.putString(CONF_KEY_DEVICE_NAME, mLocalDeviceName);
+                editor.putInt(CONF_KEY_BEGIN_PORT, mBeginPort);
+                editor.putInt(CONF_KEY_ALLOW_THREAD_NUMBER, mAllowThreadNumber);
 
                 editor.apply();
+                Toast.makeText(getApplicationContext(),
+                        "此次更改下次生效", Toast.LENGTH_SHORT).show();
+                finish();
                 break;
         }
         return super.onOptionsItemSelected(item);

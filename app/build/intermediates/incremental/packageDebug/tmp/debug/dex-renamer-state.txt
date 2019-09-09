@@ -1,7 +1,7 @@
-#Mon Sep 09 17:01:52 CST 2019
-base.0=/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/dex/debug/mergeExtDexDebug/out/classes.dex
+#Mon Sep 09 19:15:03 CST 2019
+base.0=C\:\\Users\\user\\AndroidStudioProjects\\FileTP-Android\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\out\\classes.dex
 path.1=classes.dex
 renamed.1=classes2.dex
 path.0=classes.dex
 renamed.0=classes.dex
-base.1=/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/dex/debug/mergeProjectDexDebug/out/classes.dex
+base.1=C\:\\Users\\user\\AndroidStudioProjects\\FileTP-Android\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\out\\classes.dex

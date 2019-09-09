@@ -11,22 +11,30 @@ import android.widget.TextView;
 import com.alvkeke.tools.filetp.R;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserListAdapter extends BaseAdapter {
 
-    private HashMap<String, InetAddress> mOnlineUsers;
+//    private HashMap<String, InetAddress> mOnlineUsers;
+    private ArrayList<UserItem> mOnlineUsers;
     private LayoutInflater mInflater;
 
-    private String currentTargetDevice;
+//    private String currentTargetDevice;
+    private int currentSelectPos;
 
     public UserListAdapter(Context context){
-        mOnlineUsers = new HashMap<>();
+//        mOnlineUsers = new HashMap<>();
+        mOnlineUsers = new ArrayList<>();
         mInflater = LayoutInflater.from(context);
     }
 
-    public void setCurrentTargetDevice(String name){
-        currentTargetDevice = name;
+//    public void setCurrentTargetDevice(String name){
+//        currentTargetDevice = name;
+//    }
+
+    public void setCurrentSelectPos(int pos){
+        currentSelectPos = pos;
     }
 
     @Override
@@ -35,35 +43,52 @@ public class UserListAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public UserItem getItem(int position) {
 
-        int i = 0;
-        for (InetAddress address : mOnlineUsers.values()){
-            if (i++ == position){
-                return address;
-            }
-        }
-
-        return null;
+        return mOnlineUsers.get(position);
+//        int i = 0;
+//        for (InetAddress address : mOnlineUsers.values()){
+//            if (i++ == position){
+//                return address;
+//            }
+//        }
+//
+//        return null;
     }
 
     public String getName(int pos){
 
-        int i = 0;
-        for (String s : mOnlineUsers.keySet()){
-            if (i++ == pos){
-                return s;
-            }
+        UserItem item = mOnlineUsers.get(pos);
+        if (item != null){
+            return item.getDeviceName();
         }
-
-        return null;
+        else {
+            return null;
+        }
+//        int i = 0;
+//        for (String s : mOnlineUsers.keySet()){
+//            if (i++ == pos){
+//                return s;
+//            }
+//        }
+//
+//        return null;
     }
 
     public InetAddress getSelectAddress(){
-        if (currentTargetDevice == null){
+//        if (currentTargetDevice == null){
+//            return null;
+//        }
+//        return mOnlineUsers.get(currentTargetDevice);
+        if (getCount() <= currentSelectPos){
             return null;
         }
-        return mOnlineUsers.get(currentTargetDevice);
+        UserItem item = mOnlineUsers.get(currentSelectPos);
+        if (item != null){
+            return item.getAddress();
+        }
+
+        return null;
     }
 
     @Override
@@ -92,11 +117,13 @@ public class UserListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        String name = getName(position);
+        UserItem item = mOnlineUsers.get(position);
 
-        if (name != null){
-            holder.name.setText(name);
-            if (name.equals(currentTargetDevice)){
+//        String name = getName(position);
+
+        if (item != null){
+            holder.name.setText(item.getDeviceName());
+            if (position == currentSelectPos){
                 holder.icon.setImageResource(R.drawable.ic_file_list_checked);
             }else {
                 holder.icon.setImageResource(R.drawable.ic_file_list_unchecked);
@@ -107,10 +134,18 @@ public class UserListAdapter extends BaseAdapter {
     }
 
     public void addUser(String deviceName, InetAddress address) {
-        mOnlineUsers.put(deviceName, address);
+//        mOnlineUsers.put(deviceName, address);
+        mOnlineUsers.add(new UserItem(address, deviceName));
     }
 
     public void removeUser(String deviceName) {
-        mOnlineUsers.remove(deviceName);
+//        mOnlineUsers.remove(deviceName);
+
+        for (UserItem u : mOnlineUsers){
+            if (u.getDeviceName().endsWith(deviceName)){
+                mOnlineUsers.remove(u);
+                return;
+            }
+        }
     }
 }
