@@ -339,7 +339,7 @@ public class MainActivity extends AppCompatActivity
         mUserList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                // todo : 选择发送用户
+                // 选择发送用户
                 mUserAdapter.setCurrentSelectPos(i);
                 mUserAdapter.notifyDataSetChanged();
             }
