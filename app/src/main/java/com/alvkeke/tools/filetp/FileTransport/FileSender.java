@@ -3,8 +3,9 @@ package com.alvkeke.tools.filetp.FileTransport;
 
 import android.util.Log;
 
+import com.alvkeke.tools.filetp.ListAdapter.TaskItem;
+
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,17 +26,17 @@ public class FileSender {
 
     }
 
-    public void send(File file){
+    public void send(TaskItem task){
 
-        new Thread(new SenderThread(file)).start();
+        new Thread(new SenderThread(task)).start();
     }
 
     class SenderThread implements Runnable{
 
-        File file;
+        TaskItem task;
 
-        SenderThread(File file){
-            this.file = file;
+        SenderThread(TaskItem task){
+            this.task = task;
         }
 
         @Override
@@ -43,14 +44,14 @@ public class FileSender {
 
             try {
                 Socket socket = new Socket(mAddress, mPort);
-                FileInputStream fis = new FileInputStream(file);
+                FileInputStream fis = new FileInputStream(task);
                 DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
                 dos.writeUTF(mLocalDeviceName);
                 dos.flush();
-                dos.writeUTF(file.getName());
+                dos.writeUTF(task.getName());
                 dos.flush();
-                dos.writeLong(file.length());
+                dos.writeLong(task.length());
 
                 byte[] buf = new byte[1024];
                 int length;
@@ -58,18 +59,18 @@ public class FileSender {
                     dos.write(buf, 0, length);
                     dos.flush();
                 }
-                Log.e("debug", "file send success");
+                Log.e("debug", "task send success");
 
                 fis.close();
                 dos.close();
 
                 socket.close();
-                mCallback.sendFileSuccess(file);
+                mCallback.sendFileSuccess(task);
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.e("debug", "file send failed");
-                mCallback.sendFileFailed(file);
+                Log.e("debug", "task send failed");
+                mCallback.sendFileFailed(task);
             }
         }
     }

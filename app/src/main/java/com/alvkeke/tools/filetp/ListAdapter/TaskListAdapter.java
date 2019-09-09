@@ -14,37 +14,10 @@ import com.alvkeke.tools.filetp.R;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.net.URI;
 import java.util.ArrayList;
 
-public class TaskListAdapter extends BaseAdapter implements FileSenderCallback {
-
-    class TaskItem{
-
-        static final int STATE_WAITING = 0;
-        static final int STATE_RUNNING = 1;
-        static final int STATE_FINISHED = 2;
-        static final int STATE_ERROR = 4;
-
-        File mFile;
-        int state;
-
-        TaskItem(File file){
-            mFile = file;
-        }
-
-        public void setState(int state) {
-            this.state = state;
-        }
-
-        public File getFile() {
-            return mFile;
-        }
-
-        public int getState(){
-            return state;
-        }
-
-    }
+public class TaskListAdapter extends BaseAdapter {
 
     private ArrayList<TaskItem> mTasksList;
     private int mAllowThreadNumber;
@@ -67,29 +40,32 @@ public class TaskListAdapter extends BaseAdapter implements FileSenderCallback {
         this.mAllowThreadNumber = mAllowThreadNumber;
     }
 
-    public void addTask(File file){
-        TaskItem task = new TaskItem(file);
+    public void addTask(TaskItem task){
+//        TaskItem task = new TaskItem(file);
         task.setState(TaskItem.STATE_WAITING);
         mTasksList.add(task);
     }
 
-    public void finishTask(File file){
-        for (TaskItem t : mTasksList){
-            if (t.getFile().equals(file)){
-                t.setState(TaskItem.STATE_FINISHED);
-                return;
-            }
-        }
+    public void finishTask(TaskItem task){
+//        for (TaskItem t : mTasksList){
+//            if (t.equals(task)){
+//                t.setState(TaskItem.STATE_FINISHED);
+//                return;
+//            }
+//        }
+        task.setState(TaskItem.STATE_FINISHED);
     }
 
-    public void setTaskError(File file){
+    public void setTaskError(TaskItem task){
 
-        for (TaskItem t : mTasksList){
-            if (t.getFile().equals(file)){
-                t.setState(TaskItem.STATE_ERROR);
-                return;
-            }
-        }
+//        for (TaskItem t : mTasksList){
+//            if (t.getFile().equals(file)){
+//                t.setState(TaskItem.STATE_ERROR);
+//                return;
+//            }
+//        }
+
+        task.setState(TaskItem.STATE_ERROR);
     }
 
     public void clearFinishedTask(){
@@ -103,16 +79,17 @@ public class TaskListAdapter extends BaseAdapter implements FileSenderCallback {
         mTasksList.removeAll(taskItems);
     }
 
-    public void removeTask(File file){
-        TaskItem tmp = null;
-        for (TaskItem t : mTasksList){
-            if (t.getFile().equals(file)){
-                tmp = t;
-                break;
-            }
-        }
-        if (tmp != null)
-        mTasksList.remove(tmp);
+    public void removeTask(TaskItem task){
+//        TaskItem tmp = null;
+//        for (TaskItem t : mTasksList){
+//            if (t.getFile().equals(file)){
+//                tmp = t;
+//                break;
+//            }
+//        }
+//        if (tmp != null)
+//        mTasksList.remove(tmp);
+        mTasksList.remove(task);
     }
 
     private int getTasksCountByState(int state){
@@ -145,10 +122,10 @@ public class TaskListAdapter extends BaseAdapter implements FileSenderCallback {
                 break;
             }
             if (t.getState() == TaskItem.STATE_WAITING){
-                FileSender sender = new FileSender(this, localDeviceName, targetAddress, port);
+                FileSender sender = new FileSender(mCallback, localDeviceName, targetAddress, port);
                 t.setState(TaskItem.STATE_RUNNING);
-                File fileToSend = t.getFile();
-                sender.send(fileToSend);
+//                TaskItem fileToSend = t;
+                sender.send(t);
             }
         }
     }
@@ -194,7 +171,7 @@ public class TaskListAdapter extends BaseAdapter implements FileSenderCallback {
 
         TaskItem task = getItem(position);
 
-        holder.name.setText(task.getFile().getName());
+        holder.name.setText(task.getName());
 
         switch (task.getState()){
             case TaskItem.STATE_WAITING:
@@ -214,19 +191,19 @@ public class TaskListAdapter extends BaseAdapter implements FileSenderCallback {
 
         return convertView;
     }
-
-    @Override
-    public void sendFileFailed(File file) {
-        mCallback.sendFileFailed(file);
-    }
-
-    @Override
-    public void sendFileSuccess(File file) {
-        mCallback.sendFileSuccess(file);
-    }
-
-    @Override
-    public void sendFileInProcess() {
-        mCallback.sendFileInProcess();
-    }
+//
+//    @Override
+//    public void sendFileFailed(TaskItem task) {
+//        mCallback.sendFileFailed(task);
+//    }
+//
+//    @Override
+//    public void sendFileSuccess(TaskItem task) {
+//        mCallback.sendFileSuccess(task);
+//    }
+//
+//    @Override
+//    public void sendFileInProcess() {
+//        mCallback.sendFileInProcess();
+//    }
 }

@@ -23,7 +23,7 @@ public class FileRecvThread implements Runnable{
     @Override
     public void run() {
         /*
-        * finish the method for receiving file
+        * finish the method for receiving task
         * */
         try {
             DataInputStream dis = new DataInputStream(mSocket.getInputStream());

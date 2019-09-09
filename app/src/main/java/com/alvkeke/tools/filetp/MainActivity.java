@@ -30,6 +30,7 @@ import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
 import com.alvkeke.tools.filetp.FileTransport.FileSenderCallback;
 import com.alvkeke.tools.filetp.FileTransport.SharedCallback;
 import com.alvkeke.tools.filetp.FileTransport.SharedHandler;
+import com.alvkeke.tools.filetp.ListAdapter.TaskItem;
 import com.alvkeke.tools.filetp.ListAdapter.UserListAdapter;
 import com.alvkeke.tools.filetp.ListAdapter.TaskListAdapter;
 
@@ -270,7 +271,8 @@ public class MainActivity extends AppCompatActivity
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     for (File file : fileToSend.listFiles()) {
-                                        mTaskAdapter.addTask(file);
+                                        TaskItem task = new TaskItem(file.getAbsolutePath());
+                                        mTaskAdapter.addTask(task);
 //                                        mTaskAdapter.notifyDataSetChanged();
                                     }
 
@@ -292,7 +294,8 @@ public class MainActivity extends AppCompatActivity
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    mTaskAdapter.addTask(fileToSend);
+                                    TaskItem task = new TaskItem(fileToSend.getAbsolutePath());
+                                    mTaskAdapter.addTask(task);
 //                                    mTaskAdapter.notifyDataSetChanged();
 
                                     InetAddress address = mUserAdapter.getSelectAddress();
@@ -398,7 +401,8 @@ public class MainActivity extends AppCompatActivity
 
                                 // 添加到任务队列
                                 for (File e : mFileListAdapter.getSelectFiles()){
-                                    mTaskAdapter.addTask(e);
+                                    TaskItem task = new TaskItem(e.getAbsolutePath());
+                                    mTaskAdapter.addTask(task);
                                 }
                                 InetAddress address = mUserAdapter.getSelectAddress();
                                 if (address != null) {
@@ -515,8 +519,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void sendFileFailed(File file) {
-        mTaskAdapter.setTaskError(file);
+    public void sendFileFailed(TaskItem task) {
+        mTaskAdapter.setTaskError(task);
 
         runOnUiThread(new Runnable() {
             @Override
@@ -527,8 +531,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void sendFileSuccess(File file) {
-        mTaskAdapter.finishTask(file);
+    public void sendFileSuccess(TaskItem task) {
+        mTaskAdapter.finishTask(task);
 
         InetAddress address = mUserAdapter.getSelectAddress();
         if (address != null) {
@@ -550,7 +554,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void gotShare(File file) {
-        mTaskAdapter.addTask(file);
+        TaskItem task = new TaskItem(file.getAbsolutePath());
+        mTaskAdapter.addTask(task);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

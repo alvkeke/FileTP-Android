@@ -1,4 +1,4 @@
-#Sun Sep 08 16:28:50 CST 2019
+#Mon Sep 09 15:11:06 CST 2019
 base.0=/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/build/intermediates/dex/debug/mergeExtDexDebug/out/classes.dex
 path.1=classes.dex
 renamed.1=classes2.dex

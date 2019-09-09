@@ -39,7 +39,7 @@ public class FileRecvHandler {
             while (inLoop){
                 try {
                     Socket socketAccept = serverSocket.accept();
-                    Log.e("debug", "got an client want to send file.");
+                    Log.e("debug", "got an client want to send task.");
                     new Thread(new FileRecvThread(mCallback, socketAccept, mSavePath)).start();
 
                 } catch (IOException e) {

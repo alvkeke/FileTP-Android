@@ -40,7 +40,7 @@ public class SharedHandler {
             while (inLoop){
                 try {
                     Socket socketAccept = serverSocket.accept();
-                    Log.e("debug", "got an client want to send file.");
+                    Log.e("debug", "got an client want to send task.");
 
                     socketAccept.setSoTimeout(10000);
                     DataInputStream dis = new DataInputStream(socketAccept.getInputStream());
