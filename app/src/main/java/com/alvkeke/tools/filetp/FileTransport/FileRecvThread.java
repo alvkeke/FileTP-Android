@@ -1,5 +1,7 @@
 package com.alvkeke.tools.filetp.FileTransport;
 
+import com.alvkeke.tools.filetp.ListAdapter.RecvTaskItem;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
@@ -30,10 +32,12 @@ public class FileRecvThread implements Runnable{
 
             String deviceName = dis.readUTF();
             String filename = dis.readUTF();
-            Long fileLength = dis.readLong();
+            long fileLength = dis.readLong();
+
+            RecvTaskItem task = mCallback.recvFileBegin(deviceName, filename, fileLength);
 
             if (!mCallback.isCredible(deviceName)){
-                mCallback.recvFileFailed(RECV_FAILED_INCREDIBLE, deviceName);
+                mCallback.recvFileFailed(task, RECV_FAILED_INCREDIBLE, deviceName);
                 dis.close();
                 mSocket.close();
                 return;
@@ -41,21 +45,26 @@ public class FileRecvThread implements Runnable{
 
             File dir = new File(mSavePath);
             if (!(dir.exists() && dir.isDirectory())){
-                mCallback.recvFileFailed(RECV_FAILED_SAVE_PATH_ERROR, mSavePath);
+                mCallback.recvFileFailed(task, RECV_FAILED_SAVE_PATH_ERROR, mSavePath);
             }
             File file = new File(dir, filename);
             if (file.exists()){
                 file = new File(dir, filename +"_"+ new Date().getTime());
             }
+
             FileOutputStream fos = new FileOutputStream(file);
+
+            float recvLength = 0;
             byte[] buf = new byte[1024];
             int length;
             while ((length = dis.read(buf)) != -1){
                 fos.write(buf, 0, length);
                 fos.flush();
+                recvLength += length;
+                mCallback.recvFileInProcess(task, recvLength/fileLength * 100);
             }
 
-            mCallback.gotFile(file.getAbsolutePath());
+            mCallback.recvFileSuccess(task, file.getAbsolutePath());
 
             dis.close();
             fos.close();

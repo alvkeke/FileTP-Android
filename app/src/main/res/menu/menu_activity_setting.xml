@@ -5,14 +5,14 @@
     <item
         android:id="@+id/menu_setting_ok"
         android:title="@string/string_ok"
-        android:icon="@drawable/ic_ok"
+        android:icon="@drawable/ic_menu_ok"
         app:showAsAction="always"
         />
 
     <item
         android:id="@+id/menu_setting_cancel"
         android:title="@string/string_cancel"
-        android:icon="@drawable/ic_cancel"
+        android:icon="@drawable/ic_menu_cancel"
         app:showAsAction="ifRoom"
         />
 

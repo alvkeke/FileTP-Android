@@ -5,27 +5,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.alvkeke.tools.filetp.FileTransport.FileSender;
-import com.alvkeke.tools.filetp.FileTransport.FileSenderCallback;
+import com.alvkeke.tools.filetp.FileTransport.FileSendCallback;
 import com.alvkeke.tools.filetp.R;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-public class TaskListAdapter extends BaseAdapter {
+public class SendTaskListAdapter extends BaseAdapter {
 
-    private ArrayList<TaskItem> mTasksList;
+    private ArrayList<SendTaskItem> mTasksList;
     private int mAllowThreadNumber;
 
-    private FileSenderCallback mCallback;
+    private FileSendCallback mCallback;
 
     private LayoutInflater mInflater;
 
-    public TaskListAdapter(Context context, FileSenderCallback callback){
+    public SendTaskListAdapter(Context context, FileSendCallback callback){
 
         mInflater = LayoutInflater.from(context);
 
@@ -39,25 +36,25 @@ public class TaskListAdapter extends BaseAdapter {
         this.mAllowThreadNumber = mAllowThreadNumber;
     }
 
-    public void addTask(TaskItem task){
-        task.setState(TaskItem.STATE_WAITING);
+    public void addTask(SendTaskItem task){
+        task.setState(SendTaskItem.STATE_WAITING);
         mTasksList.add(task);
     }
 
-    public void finishTask(TaskItem task){
+    public void finishTask(SendTaskItem task){
 
-        task.setState(TaskItem.STATE_FINISHED);
+        task.setState(SendTaskItem.STATE_FINISHED);
     }
 
-    public void setTaskError(TaskItem task){
+    public void setTaskError(SendTaskItem task){
 
-        task.setState(TaskItem.STATE_ERROR);
+        task.setState(SendTaskItem.STATE_ERROR);
     }
 
     public void clearFinishedTask(){
-        ArrayList<TaskItem> taskItems = new ArrayList<>();
-        for (TaskItem t : mTasksList){
-            if (t.getState() == TaskItem.STATE_FINISHED){
+        ArrayList<SendTaskItem> taskItems = new ArrayList<>();
+        for (SendTaskItem t : mTasksList){
+            if (t.getState() == SendTaskItem.STATE_FINISHED){
                 taskItems.add(t);
             }
         }
@@ -65,14 +62,14 @@ public class TaskListAdapter extends BaseAdapter {
         mTasksList.removeAll(taskItems);
     }
 
-    public void removeTask(TaskItem task){
+    public void removeTask(SendTaskItem task){
 
         mTasksList.remove(task);
     }
 
     private int getTasksCountByState(int state){
         int count = 0;
-        for (TaskItem t : mTasksList){
+        for (SendTaskItem t : mTasksList){
             if (t.getState() == state){
                 count++;
             }
@@ -82,26 +79,26 @@ public class TaskListAdapter extends BaseAdapter {
     }
 
     public int getFinishedTaskCount(){
-        return getTasksCountByState(TaskItem.STATE_FINISHED);
+        return getTasksCountByState(SendTaskItem.STATE_FINISHED);
     }
 
     public int getWaitingTasksCount(){
-        return getTasksCountByState(TaskItem.STATE_WAITING);
+        return getTasksCountByState(SendTaskItem.STATE_WAITING);
     }
 
     public int getRunningTasksCount(){
-        return getTasksCountByState(TaskItem.STATE_RUNNING);
+        return getTasksCountByState(SendTaskItem.STATE_RUNNING);
     }
 
     public void checkWaitingTasks(InetAddress targetAddress, int port, String localDeviceName){
 
-        for (TaskItem t : mTasksList){
+        for (SendTaskItem t : mTasksList){
             if (getRunningTasksCount() >= mAllowThreadNumber){
                 break;
             }
-            if (t.getState() == TaskItem.STATE_WAITING){
+            if (t.getState() == SendTaskItem.STATE_WAITING){
                 FileSender sender = new FileSender(mCallback, localDeviceName, targetAddress, port);
-                t.setState(TaskItem.STATE_RUNNING);
+                t.setState(SendTaskItem.STATE_RUNNING);
                 sender.send(t);
             }
         }
@@ -113,19 +110,13 @@ public class TaskListAdapter extends BaseAdapter {
     }
 
     @Override
-    public TaskItem getItem(int position) {
+    public SendTaskItem getItem(int position) {
         return mTasksList.get(position);
     }
 
     @Override
     public long getItemId(int position) {
         return 0;
-    }
-
-    static class ViewHolder{
-        ImageView icon;
-        TextView name;
-        ProgressBar progress;
     }
 
     @Override
@@ -148,22 +139,22 @@ public class TaskListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        TaskItem task = getItem(position);
+        SendTaskItem task = getItem(position);
 
         holder.name.setText(task.getName());
 
         switch (task.getState()){
-            case TaskItem.STATE_WAITING:
-                holder.icon.setImageResource(R.drawable.ic_waiting);
+            case SendTaskItem.STATE_WAITING:
+                holder.icon.setImageResource(R.drawable.ic_task_waiting);
                 break;
-            case TaskItem.STATE_RUNNING:
-                holder.icon.setImageResource(R.drawable.ic_transporting);
+            case SendTaskItem.STATE_RUNNING:
+                holder.icon.setImageResource(R.drawable.ic_task_send);
                 break;
-            case TaskItem.STATE_ERROR:
-                holder.icon.setImageResource(R.drawable.ic_error);
+            case SendTaskItem.STATE_ERROR:
+                holder.icon.setImageResource(R.drawable.ic_task_error);
                 break;
-            case TaskItem.STATE_FINISHED:
-                holder.icon.setImageResource(R.drawable.ic_finished);
+            case SendTaskItem.STATE_FINISHED:
+                holder.icon.setImageResource(R.drawable.ic_task_finished);
                 break;
         }
 

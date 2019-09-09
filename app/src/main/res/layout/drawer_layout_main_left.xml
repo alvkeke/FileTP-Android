@@ -8,6 +8,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/btn_switch_task_list"
+        android:background="@color/color_gray"
+        android:gravity="center"
+        android:textColor="@color/color_font"
+        android:textSize="28sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_tasks"
         android:layout_width="match_parent"

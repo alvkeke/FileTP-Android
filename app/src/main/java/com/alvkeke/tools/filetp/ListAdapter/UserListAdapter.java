@@ -83,7 +83,7 @@ public class UserListAdapter extends BaseAdapter {
         if (convertView == null){
             holder = new ViewHolder();
 
-            convertView = mInflater.inflate(R.layout.drawer_list_item_layout, null);
+            convertView = mInflater.inflate(R.layout.user_item_layout, null);
             holder.icon = convertView.findViewById(R.id.tasks_icon);
             holder.name = convertView.findViewById(R.id.tasks_name);
 
@@ -97,9 +97,9 @@ public class UserListAdapter extends BaseAdapter {
         if (name != null){
             holder.name.setText(name);
             if (name.equals(currentTargetDevice)){
-                holder.icon.setImageResource(R.drawable.ic_checked);
+                holder.icon.setImageResource(R.drawable.ic_file_list_checked);
             }else {
-                holder.icon.setImageResource(R.drawable.ic_unchecked);
+                holder.icon.setImageResource(R.drawable.ic_file_list_unchecked);
             }
         }
 

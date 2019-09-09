@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
@@ -14,11 +16,13 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alvkeke.tools.filetp.ListAdapter.FileListAdapter;
@@ -27,12 +31,14 @@ import com.alvkeke.tools.filetp.FileTransport.BroadcastHandler;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvCallback;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvHandler;
 import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
-import com.alvkeke.tools.filetp.FileTransport.FileSenderCallback;
+import com.alvkeke.tools.filetp.FileTransport.FileSendCallback;
 import com.alvkeke.tools.filetp.FileTransport.SharedCallback;
 import com.alvkeke.tools.filetp.FileTransport.SharedHandler;
-import com.alvkeke.tools.filetp.ListAdapter.TaskItem;
+import com.alvkeke.tools.filetp.ListAdapter.RecvTaskItem;
+import com.alvkeke.tools.filetp.ListAdapter.RecvTaskListAdapter;
+import com.alvkeke.tools.filetp.ListAdapter.SendTaskItem;
 import com.alvkeke.tools.filetp.ListAdapter.UserListAdapter;
-import com.alvkeke.tools.filetp.ListAdapter.TaskListAdapter;
+import com.alvkeke.tools.filetp.ListAdapter.SendTaskListAdapter;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -41,7 +47,7 @@ import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity
-        implements BroadcastCallback, FileRecvCallback, FileSenderCallback, SharedCallback {
+        implements BroadcastCallback, FileRecvCallback, FileSendCallback, SharedCallback {
 
     private Set<String> mCredibleUsers;
 
@@ -50,14 +56,18 @@ public class MainActivity extends AppCompatActivity
     private ListView mFileList;
     private FileListAdapter mFileListAdapter;
 
+    private TextView btnSwitchAdapter;
     private ListView mTaskList;
-    private TaskListAdapter mTaskAdapter;
+    private SendTaskListAdapter mSendTaskAdapter;
+    private RecvTaskListAdapter mRecvTaskAdapter;
 
     private ListView mUserList;
     private UserListAdapter mUserAdapter;
 
-    SwipeRefreshLayout tasksRefresher;
-    SwipeRefreshLayout usersRefresher;
+    private DrawerLayout drawerLayout;
+
+    private SwipeRefreshLayout tasksRefresher;
+    private SwipeRefreshLayout usersRefresher;
 
     private String mLocalDeviceName;
     private String mAttendDeviceName;
@@ -200,29 +210,50 @@ public class MainActivity extends AppCompatActivity
         mFileList = findViewById(R.id.lv_file_explorer);
         mUserList = findViewById(R.id.drawer_list_view_users);
         mTaskList = findViewById(R.id.drawer_list_view_tasks);
+        btnSwitchAdapter = findViewById(R.id.btn_switch_task_list);
         tasksRefresher = findViewById(R.id.refresh_tasks);
         usersRefresher = findViewById(R.id.refresh_users);
+        drawerLayout = findViewById(R.id.drawer_layout);
 
         mFileList.setDivider(null);
 
         mFileListAdapter = new FileListAdapter(this);
         mUserAdapter = new UserListAdapter(this);
-        mTaskAdapter = new TaskListAdapter(this, this);
+        mSendTaskAdapter = new SendTaskListAdapter(this, this);
+        mRecvTaskAdapter = new RecvTaskListAdapter(this, this);
 
         mFileList.setAdapter(mFileListAdapter);
         mUserList.setAdapter(mUserAdapter);
-        mTaskList.setAdapter(mTaskAdapter);
+        mTaskList.setAdapter(mSendTaskAdapter);
+        btnSwitchAdapter.setText("发送");
 
         mFileListAdapter.setShowHideFile(mIsShowHideFile);
         mUserAdapter.setCurrentTargetDevice(mAttendDeviceName);
-//        mTaskAdapter.setAllowThreadNumber(mAllowThreadNumber);
-        mTaskAdapter.setAllowThreadNumber(1);
+//        mSendTaskAdapter.setAllowThreadNumber(mAllowThreadNumber);
+        mSendTaskAdapter.setAllowThreadNumber(1);
 
         setEventListener();
 
     }
 
     void setEventListener(){
+
+        btnSwitchAdapter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (mTaskList.getAdapter().equals(mRecvTaskAdapter)){
+                    mTaskList.setAdapter(mSendTaskAdapter);
+                    mSendTaskAdapter.notifyDataSetChanged();
+                    btnSwitchAdapter.setText("发送");
+                } else {
+                    mTaskList.setAdapter(mRecvTaskAdapter);
+                    mRecvTaskAdapter.notifyDataSetChanged();
+                    btnSwitchAdapter.setText("接收");
+                }
+            }
+        });
+
         mFileList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -272,16 +303,16 @@ public class MainActivity extends AppCompatActivity
 
                                     for (File file : fileToSend.listFiles()) {
                                         if (file.isDirectory()) continue;
-                                        TaskItem task = new TaskItem(file.getAbsolutePath());
-                                        mTaskAdapter.addTask(task);
-//                                        mTaskAdapter.notifyDataSetChanged();
+                                        SendTaskItem task = new SendTaskItem(file.getAbsolutePath());
+                                        mSendTaskAdapter.addTask(task);
+//                                        mSendTaskAdapter.notifyDataSetChanged();
                                     }
 
                                     InetAddress address = mUserAdapter.getSelectAddress();
                                     if (address != null) {
-                                        mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                        mSendTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
                                     }
-                                    mTaskAdapter.notifyDataSetChanged();
+                                    mSendTaskAdapter.notifyDataSetChanged();
                                 }
                             });
                     builder.create().show();
@@ -295,15 +326,15 @@ public class MainActivity extends AppCompatActivity
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    TaskItem task = new TaskItem(fileToSend.getAbsolutePath());
-                                    mTaskAdapter.addTask(task);
-//                                    mTaskAdapter.notifyDataSetChanged();
+                                    SendTaskItem task = new SendTaskItem(fileToSend.getAbsolutePath());
+                                    mSendTaskAdapter.addTask(task);
+//                                    mSendTaskAdapter.notifyDataSetChanged();
 
                                     InetAddress address = mUserAdapter.getSelectAddress();
                                     if (address != null) {
-                                        mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                        mSendTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
                                     }
-                                    mTaskAdapter.notifyDataSetChanged();
+                                    mSendTaskAdapter.notifyDataSetChanged();
                                 }
                             });
                     builder.create().show();
@@ -316,17 +347,17 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onRefresh() {
 
-                mTaskAdapter.clearFinishedTask();
-                mTaskAdapter.notifyDataSetChanged();
+                mSendTaskAdapter.clearFinishedTask();
+                mSendTaskAdapter.notifyDataSetChanged();
 
                 InetAddress address = mUserAdapter.getSelectAddress();
                 if (address != null) {
-                    mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                    mSendTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "请检查目标设备是否在线", Toast.LENGTH_SHORT).show();
                 }
-                mTaskAdapter.notifyDataSetChanged();
+                mSendTaskAdapter.notifyDataSetChanged();
                 tasksRefresher.setRefreshing(false);
             }
         });
@@ -355,17 +386,25 @@ public class MainActivity extends AppCompatActivity
 
         InetAddress address = mUserAdapter.getSelectAddress();
         if (address != null){
-            mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+            mSendTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
         }
         super.onRestart();
     }
 
     @Override
     public void onBackPressed() {
-        if (!mFileListAdapter.moveToLastPath()) {
-            super.onBackPressed();
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else if (drawerLayout.isDrawerOpen(GravityCompat.END)){
+            drawerLayout.closeDrawer(GravityCompat.END);
+        } else {
+
+            if (!mFileListAdapter.moveToLastPath()) {
+                super.onBackPressed();
+            }
+            mFileListAdapter.notifyDataSetChanged();
         }
-        mFileListAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -402,18 +441,18 @@ public class MainActivity extends AppCompatActivity
 
                                 // 添加到任务队列
                                 for (File e : mFileListAdapter.getSelectFiles()){
-                                    TaskItem task = new TaskItem(e.getAbsolutePath());
-                                    mTaskAdapter.addTask(task);
+                                    SendTaskItem task = new SendTaskItem(e.getAbsolutePath());
+                                    mSendTaskAdapter.addTask(task);
                                 }
                                 InetAddress address = mUserAdapter.getSelectAddress();
                                 if (address != null) {
-                                    mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                                    mSendTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
 
                                 }
                                 setFileMenuVisible(false);
                                 mFileListAdapter.unselectAll();
                                 mFileListAdapter.notifyDataSetChanged();
-                                mTaskAdapter.notifyDataSetChanged();
+                                mSendTaskAdapter.notifyDataSetChanged();
                             }
                         });
                 builder.create().show();
@@ -471,17 +510,42 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void recvFileBegin() {
-
+    public RecvTaskItem recvFileBegin(String deviceName, String filename, long fileLength) {
+        RecvTaskItem task = new RecvTaskItem(deviceName, filename, fileLength);
+        mRecvTaskAdapter.addTask(task);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecvTaskAdapter.notifyDataSetChanged();
+            }
+        });
+        return task;
     }
 
     @Override
-    public void recvFileInProcess() {
-
+    public void recvFileInProcess(RecvTaskItem task, float percentage) {
+        task.setProgress(percentage);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecvTaskAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
-    public void gotFile(String fileLocation) {
+    public void recvFileSuccess(RecvTaskItem task, String fileLocation) {
+        mRecvTaskAdapter.finishTask(task);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecvTaskAdapter.notifyDataSetChanged();
+            }
+        });
+
+        // todo: 测试此处代码
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("接收到文件")
                 .setMessage(fileLocation)
@@ -491,7 +555,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void recvFileFailed(byte Reason, final String param) {
+    public void recvFileFailed(RecvTaskItem task, byte Reason, final String param) {
+        mRecvTaskAdapter.setTaskError(task);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecvTaskAdapter.notifyDataSetChanged();
+            }
+        });
+
         switch (Reason){
             case FileRecvThread.RECV_FAILED_DATA_ERROR:
                 Log.e("debug", "error data:" + param);
@@ -520,59 +592,59 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void sendFileFailed(TaskItem task) {
-        mTaskAdapter.setTaskError(task);
+    public void sendFileFailed(SendTaskItem task) {
+        mSendTaskAdapter.setTaskError(task);
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mTaskAdapter.notifyDataSetChanged();
+                mSendTaskAdapter.notifyDataSetChanged();
             }
         });
     }
 
     @Override
-    public void sendFileSuccess(TaskItem task) {
-        mTaskAdapter.finishTask(task);
+    public void sendFileSuccess(SendTaskItem task) {
+        mSendTaskAdapter.finishTask(task);
 
         InetAddress address = mUserAdapter.getSelectAddress();
         if (address != null) {
-            mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+            mSendTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
         }
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mTaskAdapter.notifyDataSetChanged();
+                mSendTaskAdapter.notifyDataSetChanged();
             }
         });
     }
 
     @Override
-    public void sendFileInProcess(TaskItem taskItem, float percentage) {
+    public void sendFileInProcess(SendTaskItem taskItem, float percentage) {
 //        Log.e("sending", taskItem.getName() + " : "+ percentage);
         taskItem.setPercentage(percentage);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mTaskAdapter.notifyDataSetChanged();
+                mSendTaskAdapter.notifyDataSetChanged();
             }
         });
     }
 
     @Override
     public void gotShare(File file) {
-        TaskItem task = new TaskItem(file.getAbsolutePath());
-        mTaskAdapter.addTask(task);
+        SendTaskItem task = new SendTaskItem(file.getAbsolutePath());
+        mSendTaskAdapter.addTask(task);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mTaskAdapter.notifyDataSetChanged();
+                mSendTaskAdapter.notifyDataSetChanged();
                 InetAddress address = mUserAdapter.getSelectAddress();
                 if (address != null) {
-                    mTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
+                    mSendTaskAdapter.checkWaitingTasks(address, mBeginPort, mLocalDeviceName);
                 }
-                mTaskAdapter.notifyDataSetChanged();
+                mSendTaskAdapter.notifyDataSetChanged();
             }
         });
     }

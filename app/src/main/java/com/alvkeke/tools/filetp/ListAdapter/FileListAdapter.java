@@ -201,18 +201,18 @@ public class FileListAdapter extends BaseAdapter {
         holder.checker.setVisibility(View.GONE);
         holder.name.setText(file.getName());
         if (file.isDirectory()){
-            holder.icon.setImageResource(R.drawable.ic_folder);
+            holder.icon.setImageResource(R.drawable.ic_file_list_folder);
         } else {
-            holder.icon.setImageResource(R.drawable.ic_file);
+            holder.icon.setImageResource(R.drawable.ic_file_list_file);
             if (hasSelected()){
                 holder.checker.setVisibility(View.VISIBLE);
             }
         }
 
         if (isSelected(position)){
-            holder.checker.setImageResource(R.drawable.ic_checked);
+            holder.checker.setImageResource(R.drawable.ic_file_list_checked);
         } else {
-            holder.checker.setImageResource(R.drawable.ic_unchecked);
+            holder.checker.setImageResource(R.drawable.ic_file_list_unchecked);
         }
 
         setVisible(convertView, holder, View.VISIBLE);

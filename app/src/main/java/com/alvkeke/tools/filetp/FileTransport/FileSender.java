@@ -3,7 +3,7 @@ package com.alvkeke.tools.filetp.FileTransport;
 
 import android.util.Log;
 
-import com.alvkeke.tools.filetp.ListAdapter.TaskItem;
+import com.alvkeke.tools.filetp.ListAdapter.SendTaskItem;
 
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
@@ -16,9 +16,9 @@ public class FileSender {
     private String mLocalDeviceName;
     private InetAddress mAddress;
     private int mPort;
-    private FileSenderCallback mCallback;
+    private FileSendCallback mCallback;
 
-    public FileSender(FileSenderCallback callback, String localDeviceName, InetAddress address, int port){
+    public FileSender(FileSendCallback callback, String localDeviceName, InetAddress address, int port){
         mCallback = callback;
         mLocalDeviceName = localDeviceName;
         mAddress = address;
@@ -26,16 +26,16 @@ public class FileSender {
 
     }
 
-    public void send(TaskItem task){
+    public void send(SendTaskItem task){
 
         new Thread(new SenderThread(task)).start();
     }
 
     class SenderThread implements Runnable{
 
-        TaskItem task;
+        SendTaskItem task;
 
-        SenderThread(TaskItem task){
+        SenderThread(SendTaskItem task){
             this.task = task;
         }
 

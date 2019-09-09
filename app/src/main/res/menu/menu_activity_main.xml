@@ -5,17 +5,17 @@
     <item
         android:id="@+id/menu_main_send"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_send"
+        android:icon="@drawable/ic_menu_send"
         android:title="@string/title_menu_send"
         />
     <item
         android:id="@+id/menu_main_select_all"
         app:showAsAction="always"
-        android:icon="@drawable/ic_select_all"
+        android:icon="@drawable/ic_menu_select_all"
         android:title="@string/title_menu_select_all"
         />
     <item
         android:id="@+id/menu_main_setting"
-        android:icon="@drawable/ic_settings"
+        android:icon="@drawable/ic_menu_settings"
         android:title="@string/title_menu_setting"/>
 </menu>
