@@ -491,8 +491,7 @@ public class MainActivity extends AppCompatActivity
 
             mSendTaskAdapter.setAllowThreadNumber(mAllowThreadNumber);
             mFileListAdapter.setShowHideFile(mIsShowHideFile);
-            bcHandler.logout();
-            bcHandler.setLocalDeviceName(mLocalDeviceName);
+            bcHandler.relogin(mLocalDeviceName);
 
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -512,7 +511,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 mUserAdapter.notifyDataSetChanged();
-//                usersRefresher.setRefreshing(false);
             }
         });
         Log.e("broadcast", deviceName);

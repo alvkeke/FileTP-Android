@@ -150,4 +150,40 @@ public class BroadcastHandler {
 
     }
 
+    public void relogin(final String newName){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                try {
+                    String sToSend = Cs.CMD_LOGOUT_STR + mLocalDeviceName;
+                    byte[] data = sToSend.getBytes();
+                    InetAddress address = InetAddress.getByName("255.255.255.255");
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, mBroadPort);
+                    mSocket.send(packet);
+
+                    mLocalDeviceName = newName;
+
+                    sToSend = Cs.CMD_LOGIN_STR + mLocalDeviceName;
+                    Arrays.fill(data, (byte)0);
+                    data = sToSend.getBytes();
+                    packet.setData(data);
+                    mSocket.send(packet);
+
+                    sToSend = Cs.CMD_BROADCAST_REQUEST + mLocalDeviceName;
+                    Arrays.fill(data, (byte)0);
+                    data = sToSend.getBytes();
+                    packet.setData(data);
+                    mSocket.send(packet);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }).start();
+    }
+
 }

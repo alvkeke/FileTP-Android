@@ -6,88 +6,88 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="21"
-8-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml
+8-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml
 9        android:targetSdkVersion="28" />
-9-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml
+9-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml
 10
 11    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-11-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:44:5-81
-11-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:44:22-78
+11-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:44:5-81
+11-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:44:22-78
 12    <uses-permission android:name="android.permission.INTERNET" />
-12-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:45:5-67
-12-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:45:22-64
+12-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:45:5-67
+12-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:45:22-64
 13    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-13-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:47:5-80
-13-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:47:22-77
+13-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:47:5-80
+13-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:47:22-77
 14
 15    <application
-15-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:5:5-43:19
+15-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:5:5-43:19
 16        android:allowBackup="true"
-16-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:6:9-35
+16-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:6:9-35
 17        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-17-->[androidx.core:core:1.0.1] C:\Users\user\.gradle\caches\transforms-2\files-2.1\72b2b92ec4ab73ff21fb9bc348de3b22\core-1.0.1\AndroidManifest.xml:22:18-86
+17-->[androidx.core:core:1.0.1] /home/alvis/.gradle/caches/transforms-2/files-2.1/72b2b92ec4ab73ff21fb9bc348de3b22/core-1.0.1/AndroidManifest.xml:22:18-86
 18        android:debuggable="true"
 19        android:icon="@mipmap/ic_launcher"
-19-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:7:9-43
+19-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:7:9-43
 20        android:label="@string/app_name"
-20-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:8:9-41
+20-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:8:9-41
 21        android:roundIcon="@mipmap/ic_launcher_round"
-21-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:9:9-54
+21-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:9:9-54
 22        android:supportsRtl="true"
-22-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:10:9-35
+22-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:10:9-35
 23        android:testOnly="true"
 24        android:theme="@style/AppTheme" >
-24-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:11:9-40
+24-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:11:9-40
 25        <activity android:name="com.alvkeke.tools.filetp.ShardedActivity" >
-25-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:12:9-29:20
-25-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:12:19-50
+25-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:12:9-29:20
+25-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:12:19-50
 26            <intent-filter>
-26-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:14:13-20:29
+26-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:14:13-20:29
 27                <action android:name="android.intent.action.SEND" />
-27-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:15:17-69
-27-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:15:25-66
+27-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:15:17-69
+27-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:15:25-66
 28
 29                <category android:name="android.intent.category.DEFAULT" />
-29-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:17:17-76
-29-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:17:27-73
+29-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:17:17-76
+29-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:17:27-73
 30
 31                <data android:mimeType="image/*" />
-31-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:19:17-52
-31-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:19:23-49
+31-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:19:17-52
+31-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:19:23-49
 32            </intent-filter>
 33            <intent-filter>
-33-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:22:13-28:29
+33-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:22:13-28:29
 34                <action android:name="android.intent.action.SEND_MULTIPLE" />
-34-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:23:17-78
-34-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:23:25-75
+34-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:23:17-78
+34-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:23:25-75
 35
 36                <category android:name="android.intent.category.DEFAULT" />
-36-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:17:17-76
-36-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:17:27-73
+36-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:17:17-76
+36-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:17:27-73
 37
 38                <data android:mimeType="*/*" />
-38-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:19:17-52
-38-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:19:23-49
+38-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:19:17-52
+38-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:19:23-49
 39            </intent-filter>
 40        </activity>
 41        <activity android:name="com.alvkeke.tools.filetp.SettingActivity" />
-41-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:31:9-53
-41-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:31:19-50
+41-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:31:9-53
+41-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:31:19-50
 42        <activity
-42-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:33:9-42:20
+42-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:33:9-42:20
 43            android:name="com.alvkeke.tools.filetp.MainActivity"
-43-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:34:13-41
+43-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:34:13-41
 44            android:launchMode="singleTask" >
-44-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:35:13-44
+44-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:35:13-44
 45            <intent-filter>
-45-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:36:13-40:29
+45-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:36:13-40:29
 46                <action android:name="android.intent.action.MAIN" />
-46-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:37:17-69
-46-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:37:25-66
+46-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:37:17-69
+46-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:37:25-66
 47
 48                <category android:name="android.intent.category.LAUNCHER" />
-48-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:39:17-77
-48-->C:\Users\user\AndroidStudioProjects\FileTP-Android\app\src\main\AndroidManifest.xml:39:27-74
+48-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:39:17-77
+48-->/home/alvis/desktop/work-tmp/AS/FileTP-Android/app/src/main/AndroidManifest.xml:39:27-74
 49            </intent-filter>
 50        </activity>
 51    </application>

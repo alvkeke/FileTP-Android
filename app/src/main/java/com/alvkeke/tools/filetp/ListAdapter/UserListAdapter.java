@@ -110,7 +110,7 @@ public class UserListAdapter extends BaseAdapter {
     public void removeUser(String deviceName) {
 
         for (UserItem u : mOnlineUsers){
-            if (u.getDeviceName().endsWith(deviceName)){
+            if (u.getDeviceName().equals(deviceName)){
                 mOnlineUsers.remove(u);
                 return;
             }
