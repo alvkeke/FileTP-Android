@@ -25,20 +25,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.alvkeke.tools.filetp.ListAdapter.FileListAdapter;
-import com.alvkeke.tools.filetp.FileTransport.BroadcastCallback;
-import com.alvkeke.tools.filetp.FileTransport.BroadcastHandler;
-import com.alvkeke.tools.filetp.FileTransport.FileRecvCallback;
-import com.alvkeke.tools.filetp.FileTransport.FileRecvHandler;
-import com.alvkeke.tools.filetp.FileTransport.FileRecvThread;
-import com.alvkeke.tools.filetp.FileTransport.FileSendCallback;
-import com.alvkeke.tools.filetp.FileTransport.SharedCallback;
-import com.alvkeke.tools.filetp.FileTransport.SharedHandler;
-import com.alvkeke.tools.filetp.ListAdapter.RecvTaskItem;
-import com.alvkeke.tools.filetp.ListAdapter.RecvTaskListAdapter;
-import com.alvkeke.tools.filetp.ListAdapter.SendTaskItem;
-import com.alvkeke.tools.filetp.ListAdapter.UserListAdapter;
-import com.alvkeke.tools.filetp.ListAdapter.SendTaskListAdapter;
+import com.alvkeke.tools.filetp.listAdapter.FileListAdapter;
+import com.alvkeke.tools.filetp.fileTransport.BroadcastCallback;
+import com.alvkeke.tools.filetp.fileTransport.BroadcastHandler;
+import com.alvkeke.tools.filetp.fileTransport.FileRecvCallback;
+import com.alvkeke.tools.filetp.fileTransport.FileRecvHandler;
+import com.alvkeke.tools.filetp.fileTransport.FileRecvThread;
+import com.alvkeke.tools.filetp.fileTransport.FileSendCallback;
+import com.alvkeke.tools.filetp.fileTransport.SharedCallback;
+import com.alvkeke.tools.filetp.fileTransport.SharedHandler;
+import com.alvkeke.tools.filetp.listAdapter.RecvTaskItem;
+import com.alvkeke.tools.filetp.listAdapter.RecvTaskListAdapter;
+import com.alvkeke.tools.filetp.listAdapter.SendTaskItem;
+import com.alvkeke.tools.filetp.listAdapter.UserListAdapter;
+import com.alvkeke.tools.filetp.listAdapter.SendTaskListAdapter;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -156,13 +156,16 @@ public class MainActivity extends AppCompatActivity
         }
 
         // todo: delete these codes
-        if (mCredibleUsers.isEmpty()){
-            mCredibleUsers.add("alv-manjaro");
-            mCredibleUsers.add("alv-rasp3b");
-            mCredibleUsers.add("alv-xiaomi-4s");
-            mCredibleUsers.add("alv-xiaomi-9se");
-            editor.putStringSet(CONF_KEY_CREDIBLE_USERS, mCredibleUsers);
-        }
+////        if (mCredibleUsers.isEmpty()){
+//            mCredibleUsers.add("alv-manjaro");
+//            mCredibleUsers.add("alv-rasp3b");
+//            mCredibleUsers.add("alv-xiaomi-4s");
+//            mCredibleUsers.add("alv-xiaomi-9se");
+//            for (int i = 0; i< 10; i++) {
+//                mCredibleUsers.add("alv-xiaomi-9se" + i);
+//            }
+//            editor.putStringSet(CONF_KEY_CREDIBLE_USERS, mCredibleUsers);
+//        }
         editor.apply();
 
     }

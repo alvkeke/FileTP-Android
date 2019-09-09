@@ -20,6 +20,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.alvkeke.tools.filetp.listAdapter.CredibleListAdapter;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,7 +52,6 @@ public class SettingActivity extends AppCompatActivity {
     private int mBeginPort;
     private String mSavePath;
     private boolean mIsShowHideFile;
-    private Set<String> mCredibleUsers;
     private int mAllowThreadNumber;
 
     private SharedPreferences conf;
@@ -71,7 +72,6 @@ public class SettingActivity extends AppCompatActivity {
 
         conf = getSharedPreferences(CONF_NAME, Context.MODE_PRIVATE);
 
-        mCredibleUsers = conf.getStringSet(CONF_KEY_CREDIBLE_USERS, new HashSet<String>());
         mLocalDeviceName = conf.getString(CONF_KEY_DEVICE_NAME, "phone");
         mBeginPort = conf.getInt(CONF_KEY_BEGIN_PORT, 10000);
         mSavePath = conf.getString(CONF_KEY_SAVE_PATH, "");
@@ -214,17 +214,9 @@ public class SettingActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            ListView listView = new ListView(SettingActivity.this);
-            ArrayList<String> items = new ArrayList<>(mCredibleUsers);
-            listView.setAdapter(new ArrayAdapter<>(SettingActivity.this,
-                    android.R.layout.simple_expandable_list_item_1, items));
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(SettingActivity.this);
-            builder.setTitle("可信列表")  // todo: 修改此处提示
-                    .setMessage("如需修改请在主界面")
-                    .setView(listView)
-                    .setPositiveButton(R.string.string_ok,null);
-            builder.create().show();
+            Intent i = new Intent(SettingActivity.this, CredibleListActivity.class);
+            startActivity(i);
         }
     }
 

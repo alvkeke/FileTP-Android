@@ -646,8 +646,11 @@ drawable ic_file_list_folder
 drawable ic_file_list_unchecked
 drawable ic_launcher_background
 drawable ic_launcher_foreground
+drawable ic_menu_add
 drawable ic_menu_cancel
+drawable ic_menu_clear
 drawable ic_menu_ok
+drawable ic_menu_save
 drawable ic_menu_select_all
 drawable ic_menu_send
 drawable ic_menu_settings
@@ -763,7 +766,12 @@ id line1
 id line3
 id listMode
 id list_item
+id lv_credible_list
 id lv_file_explorer
+id menu_credible_add
+id menu_credible_cancel
+id menu_credible_clear
+id menu_credible_save
 id menu_main_select_all
 id menu_main_send
 id menu_main_setting
@@ -825,8 +833,6 @@ id tabMode
 id tag_transition_group
 id tag_unhandled_key_event_manager
 id tag_unhandled_key_listeners
-id tasks_icon
-id tasks_name
 id tasks_progress
 id text
 id text2
@@ -841,6 +847,8 @@ id topPanel
 id uniform
 id up
 id useLogo
+id users_icon
+id users_name
 id withText
 id wrap
 id wrap_content
@@ -877,6 +885,7 @@ layout abc_search_dropdown_item_icons_2line
 layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
+layout activity_credible_list
 layout activity_main
 layout activity_setting
 layout activity_sharded
@@ -895,6 +904,7 @@ layout select_dialog_singlechoice_material
 layout support_simple_spinner_dropdown_item
 layout task_item_layout
 layout user_item_layout
+menu credible_list_menu
 menu menu_activity_main
 menu menu_activity_setting
 mipmap app_icon
@@ -945,6 +955,10 @@ string status_bar_notification_info_overflow
 string string_cancel
 string string_ok
 string title_btn_show_credible_list
+string title_menu_add
+string title_menu_cancel
+string title_menu_clear
+string title_menu_save
 string title_menu_select_all
 string title_menu_send
 string title_menu_setting

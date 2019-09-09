@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_credible_save"
+        android:icon="@drawable/ic_menu_save"
+        app:showAsAction="always"
+        android:title="@string/title_menu_save"
+        />
+
+    <item
+        android:id="@+id/menu_credible_cancel"
+        android:icon="@drawable/ic_menu_cancel"
+        app:showAsAction="ifRoom"
+        android:title="@string/title_menu_cancel"
+        />
+
+    <item
+        android:id="@+id/menu_credible_clear"
+        android:icon="@drawable/ic_menu_clear"
+        app:showAsAction="ifRoom"
+        android:title="@string/title_menu_clear"
+        />
+
+    <item
+        android:id="@+id/menu_credible_add"
+        android:icon="@drawable/ic_menu_add"
+        app:showAsAction="ifRoom"
+        android:title="@string/title_menu_add"
+        />
+
+
+</menu>

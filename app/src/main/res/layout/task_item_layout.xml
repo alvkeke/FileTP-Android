@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/tasks_icon"
+        android:id="@+id/users_icon"
         android:layout_centerVertical="true"
         android:layout_marginStart="@dimen/distance_margin_file_icon"
         android:layout_marginTop="@dimen/distance_margin_file_icon"
@@ -15,12 +15,12 @@
         android:layout_height="36dp"/>
 
     <TextView
-        android:id="@+id/tasks_name"
+        android:id="@+id/users_name"
         android:text="@string/app_name"
         android:textSize="16sp"
         android:textColor="@color/color_font"
         android:layout_centerVertical="true"
-        android:layout_toEndOf="@id/tasks_icon"
+        android:layout_toEndOf="@id/users_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -28,7 +28,7 @@
         android:id="@+id/tasks_progress"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:max="100"
-        android:layout_below="@id/tasks_icon"
+        android:layout_below="@id/users_icon"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="@dimen/distance_margin_file_icon"
         android:layout_marginEnd="@dimen/distance_margin_file_icon"
