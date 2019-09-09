@@ -6,15 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.alvkeke.tools.filetp.FileTransport.FileSender;
 import com.alvkeke.tools.filetp.FileTransport.FileSenderCallback;
 import com.alvkeke.tools.filetp.R;
 
-import java.io.File;
 import java.net.InetAddress;
-import java.net.URI;
 import java.util.ArrayList;
 
 public class TaskListAdapter extends BaseAdapter {
@@ -41,29 +40,16 @@ public class TaskListAdapter extends BaseAdapter {
     }
 
     public void addTask(TaskItem task){
-//        TaskItem task = new TaskItem(file);
         task.setState(TaskItem.STATE_WAITING);
         mTasksList.add(task);
     }
 
     public void finishTask(TaskItem task){
-//        for (TaskItem t : mTasksList){
-//            if (t.equals(task)){
-//                t.setState(TaskItem.STATE_FINISHED);
-//                return;
-//            }
-//        }
+
         task.setState(TaskItem.STATE_FINISHED);
     }
 
     public void setTaskError(TaskItem task){
-
-//        for (TaskItem t : mTasksList){
-//            if (t.getFile().equals(file)){
-//                t.setState(TaskItem.STATE_ERROR);
-//                return;
-//            }
-//        }
 
         task.setState(TaskItem.STATE_ERROR);
     }
@@ -80,15 +66,7 @@ public class TaskListAdapter extends BaseAdapter {
     }
 
     public void removeTask(TaskItem task){
-//        TaskItem tmp = null;
-//        for (TaskItem t : mTasksList){
-//            if (t.getFile().equals(file)){
-//                tmp = t;
-//                break;
-//            }
-//        }
-//        if (tmp != null)
-//        mTasksList.remove(tmp);
+
         mTasksList.remove(task);
     }
 
@@ -124,7 +102,6 @@ public class TaskListAdapter extends BaseAdapter {
             if (t.getState() == TaskItem.STATE_WAITING){
                 FileSender sender = new FileSender(mCallback, localDeviceName, targetAddress, port);
                 t.setState(TaskItem.STATE_RUNNING);
-//                TaskItem fileToSend = t;
                 sender.send(t);
             }
         }
@@ -148,6 +125,7 @@ public class TaskListAdapter extends BaseAdapter {
     static class ViewHolder{
         ImageView icon;
         TextView name;
+        ProgressBar progress;
     }
 
     @Override
@@ -158,10 +136,11 @@ public class TaskListAdapter extends BaseAdapter {
         if (convertView == null){
             holder = new ViewHolder();
 
-            convertView = mInflater.inflate(R.layout.drawer_list_item_layout, null);
+            convertView = mInflater.inflate(R.layout.task_item_layout, null);
 
             holder.icon = convertView.findViewById(R.id.tasks_icon);
             holder.name = convertView.findViewById(R.id.tasks_name);
+            holder.progress = convertView.findViewById(R.id.tasks_progress);
 
             convertView.setTag(holder);
 
@@ -186,24 +165,11 @@ public class TaskListAdapter extends BaseAdapter {
             case TaskItem.STATE_FINISHED:
                 holder.icon.setImageResource(R.drawable.ic_finished);
                 break;
-
         }
+
+        holder.progress.setProgress((int)task.getProgress());
 
         return convertView;
     }
-//
-//    @Override
-//    public void sendFileFailed(TaskItem task) {
-//        mCallback.sendFileFailed(task);
-//    }
-//
-//    @Override
-//    public void sendFileSuccess(TaskItem task) {
-//        mCallback.sendFileSuccess(task);
-//    }
-//
-//    @Override
-//    public void sendFileInProcess() {
-//        mCallback.sendFileInProcess();
-//    }
+
 }

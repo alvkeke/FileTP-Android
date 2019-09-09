@@ -271,6 +271,7 @@ public class MainActivity extends AppCompatActivity
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     for (File file : fileToSend.listFiles()) {
+                                        if (file.isDirectory()) continue;
                                         TaskItem task = new TaskItem(file.getAbsolutePath());
                                         mTaskAdapter.addTask(task);
 //                                        mTaskAdapter.notifyDataSetChanged();
@@ -548,8 +549,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void sendFileInProcess() {
-
+    public void sendFileInProcess(TaskItem taskItem, float percentage) {
+//        Log.e("sending", taskItem.getName() + " : "+ percentage);
+        taskItem.setPercentage(percentage);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTaskAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override

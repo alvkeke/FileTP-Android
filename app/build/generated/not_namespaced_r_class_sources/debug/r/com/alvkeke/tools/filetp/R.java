@@ -3578,22 +3578,23 @@ public final class R {
     public static final int tag_unhandled_key_listeners=0x7f070098;
     public static final int tasks_icon=0x7f070099;
     public static final int tasks_name=0x7f07009a;
-    public static final int text=0x7f07009b;
-    public static final int text2=0x7f07009c;
-    public static final int textSpacerNoButtons=0x7f07009d;
-    public static final int textSpacerNoTitle=0x7f07009e;
-    public static final int time=0x7f07009f;
-    public static final int title=0x7f0700a0;
-    public static final int titleDividerNoCustom=0x7f0700a1;
-    public static final int title_template=0x7f0700a2;
-    public static final int top=0x7f0700a3;
-    public static final int topPanel=0x7f0700a4;
-    public static final int uniform=0x7f0700a5;
-    public static final int up=0x7f0700a6;
-    public static final int useLogo=0x7f0700a7;
-    public static final int withText=0x7f0700a8;
-    public static final int wrap=0x7f0700a9;
-    public static final int wrap_content=0x7f0700aa;
+    public static final int tasks_progress=0x7f07009b;
+    public static final int text=0x7f07009c;
+    public static final int text2=0x7f07009d;
+    public static final int textSpacerNoButtons=0x7f07009e;
+    public static final int textSpacerNoTitle=0x7f07009f;
+    public static final int time=0x7f0700a0;
+    public static final int title=0x7f0700a1;
+    public static final int titleDividerNoCustom=0x7f0700a2;
+    public static final int title_template=0x7f0700a3;
+    public static final int top=0x7f0700a4;
+    public static final int topPanel=0x7f0700a5;
+    public static final int uniform=0x7f0700a6;
+    public static final int up=0x7f0700a7;
+    public static final int useLogo=0x7f0700a8;
+    public static final int withText=0x7f0700a9;
+    public static final int wrap=0x7f0700aa;
+    public static final int wrap_content=0x7f0700ab;
   }
   public static final class integer {
     public static final int abc_config_activityDefaultDur=0x7f080000;
@@ -3648,6 +3649,7 @@ public final class R {
     public static final int select_dialog_multichoice_material=0x7f09002a;
     public static final int select_dialog_singlechoice_material=0x7f09002b;
     public static final int support_simple_spinner_dropdown_item=0x7f09002c;
+    public static final int task_item_layout=0x7f09002d;
   }
   public static final class menu {
     public static final int menu_activity_main=0x7f0a0000;

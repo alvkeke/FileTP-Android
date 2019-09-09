@@ -54,10 +54,13 @@ public class FileSender {
                 dos.writeLong(task.length());
 
                 byte[] buf = new byte[1024];
+                float sentLength= 0;
                 int length;
                 while ((length = fis.read(buf)) != -1){
                     dos.write(buf, 0, length);
                     dos.flush();
+                    sentLength += length;
+                    mCallback.sendFileInProcess(task, sentLength/task.length()*100);
                 }
                 Log.e("debug", "task send success");
 

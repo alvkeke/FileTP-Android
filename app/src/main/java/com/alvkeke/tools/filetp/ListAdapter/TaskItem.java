@@ -9,18 +9,27 @@ public class TaskItem extends File {
     static final int STATE_FINISHED = 2;
     static final int STATE_ERROR = 4;
 
-    private int state;
+    private int mState;
+    private float mPercentage;
 
     public TaskItem(String pathname) {
         super(pathname);
     }
 
     public void setState(int state) {
-        this.state = state;
+        mState = state;
     }
 
     public int getState() {
-        return state;
+        return mState;
+    }
+
+    public void setPercentage(float percentage){
+        mPercentage = percentage;
+    }
+
+    float getProgress(){
+        return mPercentage;
     }
 
 }
