@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -141,6 +142,7 @@ public class SettingActivity extends AppCompatActivity {
 
             final EditText et = new EditText(SettingActivity.this);
             et.setText(String.valueOf(mBeginPort));
+            et.setInputType(InputType.TYPE_CLASS_NUMBER);
             et.setSelectAllOnFocus(true);
             AlertDialog.Builder builder = new AlertDialog.Builder(SettingActivity.this);
             builder.setTitle("设置端口")
@@ -169,6 +171,7 @@ public class SettingActivity extends AppCompatActivity {
 
             final EditText et = new EditText(SettingActivity.this);
             et.setText(String.valueOf(mAllowThreadNumber));
+            et.setInputType(InputType.TYPE_CLASS_NUMBER);
             et.setSelectAllOnFocus(true);
             AlertDialog.Builder builder = new AlertDialog.Builder(SettingActivity.this);
             builder.setTitle("设置进程数")
