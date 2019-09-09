@@ -68,6 +68,10 @@ public class UserListAdapter extends BaseAdapter {
         return 0;
     }
 
+    public void clear() {
+        mOnlineUsers.clear();
+    }
+
     static class ViewHolder{
         ImageView icon;
         TextView name;

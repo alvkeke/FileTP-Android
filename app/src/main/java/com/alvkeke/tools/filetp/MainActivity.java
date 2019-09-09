@@ -345,6 +345,27 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        mUserList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("刷新用户列表")
+                        .setMessage("是否确定清空当前列表，并在局域网中请求新的在线列表？")
+                        .setNegativeButton(R.string.string_cancel, null)
+                        .setPositiveButton(R.string.string_ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mUserAdapter.clear();
+                                mUserAdapter.notifyDataSetChanged();
+                                bcHandler.relogin(mLocalDeviceName);
+                            }
+                        }).create().show();
+
+                return true;
+            }
+        });
+
         mTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
