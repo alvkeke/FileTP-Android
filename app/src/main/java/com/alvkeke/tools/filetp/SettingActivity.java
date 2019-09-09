@@ -1,16 +1,11 @@
 package com.alvkeke.tools.filetp;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,19 +13,29 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import static com.alvkeke.tools.filetp.MainActivity.*;
+import static com.alvkeke.tools.filetp.MainActivity.CONF_KEY_ALLOW_THREAD_NUMBER;
+import static com.alvkeke.tools.filetp.MainActivity.CONF_KEY_BEGIN_PORT;
+import static com.alvkeke.tools.filetp.MainActivity.CONF_KEY_CREDIBLE_USERS;
+import static com.alvkeke.tools.filetp.MainActivity.CONF_KEY_DEVICE_NAME;
+import static com.alvkeke.tools.filetp.MainActivity.CONF_KEY_SAVE_PATH;
+import static com.alvkeke.tools.filetp.MainActivity.CONF_KEY_SHOW_HIDE_FILE;
+import static com.alvkeke.tools.filetp.MainActivity.CONF_NAME;
 
 public class SettingActivity extends AppCompatActivity {
+
+    final static int REQUEST_CODE_SETTING = 1;
+    final static int RESULT_CODE_SETTING = 1;
 
     Button btnSetDeviceName;
     Button btnSetBeginPort;
@@ -42,7 +47,6 @@ public class SettingActivity extends AppCompatActivity {
     TextView tvShow;
 
     private String mLocalDeviceName;
-    private String mAttendDeviceName;
     private int mBeginPort;
     private String mSavePath;
     private boolean mIsShowHideFile;
@@ -69,7 +73,6 @@ public class SettingActivity extends AppCompatActivity {
 
         mCredibleUsers = conf.getStringSet(CONF_KEY_CREDIBLE_USERS, new HashSet<String>());
         mLocalDeviceName = conf.getString(CONF_KEY_DEVICE_NAME, "phone");
-//        mAttendDeviceName = conf.getString(CONF_KEY_ATTEND_DEVICE, "alv-manjaro");
         mBeginPort = conf.getInt(CONF_KEY_BEGIN_PORT, 10000);
         mSavePath = conf.getString(CONF_KEY_SAVE_PATH, "");
         mIsShowHideFile = conf.getBoolean(CONF_KEY_SHOW_HIDE_FILE, true);
@@ -80,7 +83,7 @@ public class SettingActivity extends AppCompatActivity {
         title = "端口：" + mBeginPort;
         btnSetBeginPort.setText(title);
         if (mAllowThreadNumber>0) {
-            title = "线程数" + mAttendDeviceName;
+            title = "线程数" + mAllowThreadNumber;
         } else {
             title = "线程数：无限制";
         }
@@ -241,13 +244,6 @@ public class SettingActivity extends AppCompatActivity {
 
                 SharedPreferences.Editor editor = conf.edit();
 
-//                Log.e("setting", mLocalDeviceName);
-//                Log.e("setting", mAttendDeviceName);
-//                Log.e("setting", String.valueOf(mBeginPort));
-//                Log.e("setting", mSavePath);
-//                Log.e("setting", String.valueOf(mIsShowHideFile));
-//                Log.e("setting", String.valueOf(mAllowThreadNumber));
-                // todo: 保存设置
                 mIsShowHideFile = switchHideFile.isChecked();
 
                 editor.putBoolean(CONF_KEY_SHOW_HIDE_FILE, mIsShowHideFile);
@@ -257,7 +253,14 @@ public class SettingActivity extends AppCompatActivity {
 
                 editor.apply();
                 Toast.makeText(getApplicationContext(),
-                        "此次更改下次生效", Toast.LENGTH_SHORT).show();
+                        "修改的端口将在程序下次打开时生效", Toast.LENGTH_SHORT).show();
+
+                Intent iReturn = new Intent();
+                iReturn.putExtra(CONF_KEY_DEVICE_NAME, mLocalDeviceName);
+                iReturn.putExtra(CONF_KEY_SHOW_HIDE_FILE, mIsShowHideFile);
+                iReturn.putExtra(CONF_KEY_ALLOW_THREAD_NUMBER, mAllowThreadNumber);
+
+                setResult(RESULT_CODE_SETTING, iReturn);
                 finish();
                 break;
         }

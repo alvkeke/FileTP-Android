@@ -12,26 +12,18 @@ import com.alvkeke.tools.filetp.R;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class UserListAdapter extends BaseAdapter {
 
-//    private HashMap<String, InetAddress> mOnlineUsers;
     private ArrayList<UserItem> mOnlineUsers;
     private LayoutInflater mInflater;
 
-//    private String currentTargetDevice;
     private int currentSelectPos;
 
     public UserListAdapter(Context context){
-//        mOnlineUsers = new HashMap<>();
         mOnlineUsers = new ArrayList<>();
         mInflater = LayoutInflater.from(context);
     }
-
-//    public void setCurrentTargetDevice(String name){
-//        currentTargetDevice = name;
-//    }
 
     public void setCurrentSelectPos(int pos){
         currentSelectPos = pos;
@@ -46,14 +38,6 @@ public class UserListAdapter extends BaseAdapter {
     public UserItem getItem(int position) {
 
         return mOnlineUsers.get(position);
-//        int i = 0;
-//        for (InetAddress address : mOnlineUsers.values()){
-//            if (i++ == position){
-//                return address;
-//            }
-//        }
-//
-//        return null;
     }
 
     public String getName(int pos){
@@ -65,21 +49,9 @@ public class UserListAdapter extends BaseAdapter {
         else {
             return null;
         }
-//        int i = 0;
-//        for (String s : mOnlineUsers.keySet()){
-//            if (i++ == pos){
-//                return s;
-//            }
-//        }
-//
-//        return null;
     }
 
     public InetAddress getSelectAddress(){
-//        if (currentTargetDevice == null){
-//            return null;
-//        }
-//        return mOnlineUsers.get(currentTargetDevice);
         if (getCount() <= currentSelectPos){
             return null;
         }
@@ -119,8 +91,6 @@ public class UserListAdapter extends BaseAdapter {
 
         UserItem item = mOnlineUsers.get(position);
 
-//        String name = getName(position);
-
         if (item != null){
             holder.name.setText(item.getDeviceName());
             if (position == currentSelectPos){
@@ -134,12 +104,10 @@ public class UserListAdapter extends BaseAdapter {
     }
 
     public void addUser(String deviceName, InetAddress address) {
-//        mOnlineUsers.put(deviceName, address);
         mOnlineUsers.add(new UserItem(address, deviceName));
     }
 
     public void removeUser(String deviceName) {
-//        mOnlineUsers.remove(deviceName);
 
         for (UserItem u : mOnlineUsers){
             if (u.getDeviceName().endsWith(deviceName)){

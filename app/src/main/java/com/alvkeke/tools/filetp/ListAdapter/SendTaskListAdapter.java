@@ -92,7 +92,7 @@ public class SendTaskListAdapter extends BaseAdapter {
 
     public void checkWaitingTasks(InetAddress targetAddress, int port, String localDeviceName){
 
-        for (SendTaskItem t : mTasksList){
+        for (SendTaskItem t : mTasksList){  // when mAllowThreadNumber less than or equal zero, means that no limit.
             if (getRunningTasksCount() >= mAllowThreadNumber && mAllowThreadNumber>0){
                 break;
             }

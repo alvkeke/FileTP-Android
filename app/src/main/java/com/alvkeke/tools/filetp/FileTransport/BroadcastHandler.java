@@ -20,6 +20,11 @@ public class BroadcastHandler {
         mCallback = callback;
     }
 
+    public void setLocalDeviceName(String name){
+        mLocalDeviceName = name;
+    }
+
+
     public boolean startListen(int port){
 
         inLoop = true;
@@ -105,6 +110,24 @@ public class BroadcastHandler {
             }
         }).start();
 
+    }
+
+    public void logout(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String sToSend = Cs.CMD_LOGOUT_STR + mLocalDeviceName;
+                byte[] data = sToSend.getBytes();
+
+                try {
+                    InetAddress address = InetAddress.getByName("255.255.255.255");
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, mBroadPort);
+                    mSocket.send(packet);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public void requestBroadcast(){

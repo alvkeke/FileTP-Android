@@ -1,6 +1,7 @@
 package com.alvkeke.tools.filetp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -16,7 +17,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity
     private SwipeRefreshLayout usersRefresher;
 
     private String mLocalDeviceName;
-//    private String mAttendDeviceName;
     private int mBeginPort;
     private String mSavePath;
     private boolean mIsShowHideFile;
@@ -82,7 +81,6 @@ public class MainActivity extends AppCompatActivity
 
     public final static String CONF_NAME = "configure";
     public final static String CONF_KEY_DEVICE_NAME = "deviceName";
-//    public final static String CONF_KEY_ATTEND_DEVICE = "attendDevice";
     public final static String CONF_KEY_BEGIN_PORT = "beginPort";
     public final static String CONF_KEY_SAVE_PATH = "savePath";
     public final static String CONF_KEY_CREDIBLE_USERS = "credibleUsers";
@@ -137,8 +135,6 @@ public class MainActivity extends AppCompatActivity
 
         setUserInterfaceViews();
 
-//        setEventListener();
-
         showSdcardRootFiles();
     }
 
@@ -148,7 +144,6 @@ public class MainActivity extends AppCompatActivity
 
         mCredibleUsers = conf.getStringSet(CONF_KEY_CREDIBLE_USERS, new HashSet<String>());
         mLocalDeviceName = conf.getString(CONF_KEY_DEVICE_NAME, "phone");
-//        mAttendDeviceName = conf.getString(CONF_KEY_ATTEND_DEVICE, "alv-manjaro");
         mBeginPort = conf.getInt(CONF_KEY_BEGIN_PORT, 10000);
         mSavePath = conf.getString(CONF_KEY_SAVE_PATH, "");
         mIsShowHideFile = conf.getBoolean(CONF_KEY_SHOW_HIDE_FILE, true);
@@ -326,7 +321,7 @@ public class MainActivity extends AppCompatActivity
 
                                     SendTaskItem task = new SendTaskItem(fileToSend.getAbsolutePath());
                                     mSendTaskAdapter.addTask(task);
-//                                    mSendTaskAdapter.notifyDataSetChanged();
+                                    mSendTaskAdapter.notifyDataSetChanged();
 
                                     InetAddress address = mUserAdapter.getSelectAddress();
                                     if (address != null) {
@@ -476,11 +471,31 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_main_setting:
 
                 Intent intentSetting = new Intent(MainActivity.this, SettingActivity.class);
-                // todo: change the request code
-                startActivityForResult(intentSetting, 1);
+                startActivityForResult(intentSetting, SettingActivity.REQUEST_CODE_SETTING);
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == SettingActivity.REQUEST_CODE_SETTING &&
+        resultCode == SettingActivity.RESULT_CODE_SETTING){
+            if (data == null){
+                return;
+            }
+
+            mLocalDeviceName = data.getStringExtra(CONF_KEY_DEVICE_NAME);
+            mIsShowHideFile = data.getBooleanExtra(CONF_KEY_SHOW_HIDE_FILE, true);
+            mAllowThreadNumber = data.getIntExtra(CONF_KEY_ALLOW_THREAD_NUMBER, 1);
+
+            mSendTaskAdapter.setAllowThreadNumber(mAllowThreadNumber);
+            mFileListAdapter.setShowHideFile(mIsShowHideFile);
+            bcHandler.logout();
+            bcHandler.setLocalDeviceName(mLocalDeviceName);
+
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     void setFileMenuVisible(boolean visible){
@@ -550,61 +565,61 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void recvFileSuccess(RecvTaskItem task, String fileLocation) {
+    public void recvFileSuccess(RecvTaskItem task, final String fileLocation) {
         mRecvTaskAdapter.finishTask(task);
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecvTaskAdapter.notifyDataSetChanged();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("接收到文件")
+                        .setMessage(fileLocation)
+                        .setPositiveButton("确定", null);
+
+                builder.create().show();
             }
         });
 
-        // todo: 测试此处代码
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("接收到文件")
-                .setMessage(fileLocation)
-                .setPositiveButton("确定", null);
-
-        builder.create().show();
     }
 
     @Override
-    public void recvFileFailed(RecvTaskItem task, byte Reason, final String param) {
+    public void recvFileFailed(RecvTaskItem task, final byte Reason, final String param) {
         mRecvTaskAdapter.setTaskError(task);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecvTaskAdapter.notifyDataSetChanged();
+
+                switch (Reason){
+                    case FileRecvThread.RECV_FAILED_DATA_ERROR:
+                        Log.e("debug", "error data:" + param);
+                        break;
+                    case FileRecvThread.RECV_FAILED_INCREDIBLE:
+                        Toast.makeText(getApplicationContext(),
+                                param + " 尝试发送文件，但被阻止", Toast.LENGTH_SHORT).show();
+                        break;
+                    case FileRecvThread.RECV_FAILED_SAVE_PATH_ERROR:
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("接收文件")
+                                .setMessage("保存路径不存在，是否创建?\n(此时创建文件夹并不能保存当前传输的文件)");
+                        builder.setNegativeButton("取消",null);
+                        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                if (!new File(param).mkdir()){
+                                    Toast.makeText(getApplicationContext(),
+                                            "自动创建失败。。。", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+                }
             }
         });
 
-        switch (Reason){
-            case FileRecvThread.RECV_FAILED_DATA_ERROR:
-                Log.e("debug", "error data:" + param);
-                break;
-            case FileRecvThread.RECV_FAILED_INCREDIBLE:
-                Toast.makeText(getApplicationContext(),
-                        param + " 尝试发送文件，但被阻止", Toast.LENGTH_SHORT).show();
-                break;
-            case FileRecvThread.RECV_FAILED_SAVE_PATH_ERROR:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("接收文件")
-                        .setMessage("保存路径不存在，是否创建?\n(此时创建文件夹并不能保存当前传输的文件)");
-                builder.setNegativeButton("取消",null);
-                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        if (!new File(param).mkdir()){
-                            Toast.makeText(getApplicationContext(),
-                                    "自动创建失败。。。", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-        }
     }
 
     @Override
@@ -638,7 +653,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void sendFileInProcess(SendTaskItem taskItem, float percentage) {
-//        Log.e("sending", taskItem.getName() + " : "+ percentage);
         taskItem.setPercentage(percentage);
         runOnUiThread(new Runnable() {
             @Override
